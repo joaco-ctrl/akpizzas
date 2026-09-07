@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 function login(data, callback) {
     const { email, password } = data;
-    const query = 'SELECT * FROM usuarios WHERE email = ?';
+    const query = 'SELECT * FROM usuarios WHERE email = ? AND activo = 1';
     conexion.query(query, [email], (error, results) => {
         if (error) {
             callback(error, null);

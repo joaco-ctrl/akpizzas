@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-08-2026 a las 16:22:51
+-- Tiempo de generación: 07-09-2026 a las 16:17:09
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -102,11 +102,18 @@ CREATE TABLE `usuarios` (
   `password` varchar(255) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `direccion` varchar(255) DEFAULT NULL,
-  `rol` enum('CLIENTE','ADMIN') NOT NULL DEFAULT 'CLIENTE',
+  `rol` enum('user','admin') NOT NULL DEFAULT 'user',
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `telefono`, `direccion`, `rol`, `activo`, `created_at`, `updated_at`) VALUES
+(1, 'admin', 'admin', 'admin@akpizzas.com', '$2b$10$Rgpf6YPjx0ob4WcdDg/D4OjbHkyWruxijoal68RZGzOhS2gT/y0Dq', '', '', 'admin', 1, '2026-09-04 12:12:08', '2026-09-04 12:13:18');
 
 --
 -- Índices para tablas volcadas
@@ -187,7 +194,7 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas

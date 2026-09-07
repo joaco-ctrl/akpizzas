@@ -29,6 +29,9 @@ function login(req, res) {
 
 function register(req, res) {
     const {nombre, apellido, telefono, direccion, email, password } = req.body;
+    if (!nombre || !apellido || !email || !password) {
+        return res.status(400).json({ error: "nombre, apellido, email y password son obligatorios" });
+    }
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) {
             return res.status(500).json({ error: "Error al encriptar contraseña" });
@@ -46,4 +49,4 @@ function register(req, res) {
 module.exports = {
     login,
     register
-};  
+};
