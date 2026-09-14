@@ -4,6 +4,8 @@ import ProductCard from "../components/ProductCard";
 import { products } from "./Menu";
 import "./Home.css";
 
+
+
 function Home({ onAddToCart }) {
   const [featuredProducts] = useState(() =>
     products.filter((product) =>
@@ -21,103 +23,72 @@ function Home({ onAddToCart }) {
   return (
     <main className="home">
 
-      {/* HERO */}
+      {/* ================= HERO ================= */}
 
       <section className="home-hero">
-        <div className="home-hero-overlay"></div>
 
         <div className="home-container home-hero-content">
-          <span className="hero-small-title">
-            AK PIZZAS
-          </span>
 
-          <h1>
-            Hambre de algo
-            <span> increíble?</span>
-          </h1>
 
-          <p>
-            Hamburguesas, pizzas, lomos y mucho más.
-            Preparado para vos en Benito Juárez.
-          </p>
+          <div className="home-hero-text">
 
-          <div className="hero-buttons">
-            <Link to="/menu" className="hero-primary-button">
-              Ver menú
-            </Link>
-
-            <Link to="/menu?category=combos" className="hero-secondary-button">
-              Ver combos
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* PRESENTACIÓN */}
-
-      <section className="home-intro">
-        <div className="home-container intro-grid">
-
-          <div className="intro-text">
-            <span className="section-label">
+            <span className="hero-small-title">
               DESDE 2016
             </span>
 
-            <h2>
-              Sabor que nos
-              <span> acompaña.</span>
-            </h2>
-
             <p>
-              Junto a ustedes desde 2016, preparando hamburguesas,
-              pizzas, lomos y mucho más para compartir buenos momentos.
+              Hamburguesas, pizzas, lomos y mucho más.
+              <br />
+              Preparado para vos en Benito Juárez.
             </p>
 
-            <p>
-              Elegí tu favorito y armá tu pedido.
-            </p>
+            <div className="hero-buttons">
 
-            <Link to="/menu" className="intro-button">
-              Explorar menú
-            </Link>
-          </div>
+              <Link
+                to="/menu"
+                className="hero-primary-button"
+              >
+                Ver menú
+              </Link>
 
-          <div className="intro-card">
-            <div className="intro-card-icon">
-              🍔
+              <Link
+                to="/menu?category=combos"
+                className="hero-secondary-button"
+              >
+                Ver combos
+              </Link>
+
             </div>
 
-            <h3>
-              Hecho para disfrutar
-            </h3>
-
-            <p>
-              Productos abundantes, combinaciones clásicas
-              y opciones para todos los gustos.
-            </p>
           </div>
 
         </div>
+
       </section>
 
-      {/* CATEGORÍAS */}
+
+      {/* ================= CATEGORÍAS ================= */}
 
       <section className="home-categories">
+
         <div className="home-container">
 
           <div className="section-heading">
+
             <span className="section-label">
-              ELEGÍ LO QUE TENÉS GANAS
+              NUESTRO MENÚ
             </span>
 
             <h2>
-              Nuestro menú
+              Elegí lo que tenés ganas
             </h2>
 
             <p>
-              Todo lo que podés encontrar en AK Pizzas.
+              Encontrá tu favorito.
             </p>
+
           </div>
+
 
           <div className="category-grid">
 
@@ -130,6 +101,7 @@ function Home({ onAddToCart }) {
               <p>Hamburguesa + papas + bebida</p>
             </Link>
 
+
             <Link
               to="/menu?category=dobles"
               className="category-card"
@@ -138,6 +110,7 @@ function Home({ onAddToCart }) {
               <h3>Hamburguesas Dobles</h3>
               <p>Dos medallones y mucho sabor</p>
             </Link>
+
 
             <Link
               to="/menu?category=triples"
@@ -148,6 +121,7 @@ function Home({ onAddToCart }) {
               <p>Para los que vienen con hambre</p>
             </Link>
 
+
             <Link
               to="/menu?category=pizzas"
               className="category-card"
@@ -157,6 +131,7 @@ function Home({ onAddToCart }) {
               <p>Pizzas para hornear</p>
             </Link>
 
+
             <Link
               to="/menu?category=lomos"
               className="category-card"
@@ -165,6 +140,7 @@ function Home({ onAddToCart }) {
               <h3>Lomos</h3>
               <p>Completos, simples y más</p>
             </Link>
+
 
             <Link
               to="/menu?category=veggie"
@@ -176,67 +152,92 @@ function Home({ onAddToCart }) {
             </Link>
 
           </div>
+
         </div>
+
       </section>
 
-      {/* DESTACADOS */}
+
+      {/* ================= DESTACADOS ================= */}
 
       <section className="home-featured">
+
         <div className="home-container">
 
           <div className="section-heading featured-heading">
+
             <div>
+
               <span className="section-label">
-                PARA ARRANCAR
+                FAVORITOS
               </span>
 
               <h2>
                 Algunos favoritos
               </h2>
+
             </div>
 
-            <Link to="/menu" className="view-all-link">
+            <Link
+              to="/menu"
+              className="view-all-link"
+            >
               Ver todo →
             </Link>
+
           </div>
 
+
           <div className="featured-grid">
+
             {featuredProducts.map((product) => (
+
               <ProductCard
                 key={product.id}
                 product={product}
                 onAddToCart={onAddToCart}
               />
+
             ))}
+
           </div>
 
         </div>
+
       </section>
 
-      {/* CTA */}
+
+      {/* ================= CTA ================= */}
 
       <section className="home-cta">
+
         <div className="home-container">
 
           <div className="cta-content">
+
             <span className="section-label">
-              ¿YA SABÉS QUÉ QUERÉS?
+              AK PIZZAS
             </span>
 
             <h2>
-              Armá tu pedido
+              ¿Ya sabés qué querés?
             </h2>
 
             <p>
-              Elegí tus productos favoritos y agregalos al carrito.
+              Elegí tus productos favoritos y armá tu pedido.
             </p>
 
-            <Link to="/menu" className="cta-button">
+            <Link
+              to="/menu"
+              className="cta-button"
+            >
               Ir al menú
             </Link>
+
           </div>
 
         </div>
+
       </section>
 
     </main>

@@ -1,3 +1,7 @@
+/* ========================================
+   HOME - AK PIZZAS
+======================================== */
+
 .home {
   min-height: 100vh;
   background: #f7f5f1;
@@ -8,66 +12,72 @@
   margin: 0 auto;
 }
 
-/* HERO */
+
+/* ========================================
+   HERO
+======================================== */
 
 .home-hero {
   position: relative;
-  min-height: 620px;
+
+  min-height: 430px;
+
   display: flex;
   align-items: center;
+
   overflow: hidden;
+
   background:
     linear-gradient(
       110deg,
       #151515 0%,
-      #242424 50%,
-      #3a1a18 100%
+      #202020 60%,
+      #2d1817 100%
     );
-}
-
-.home-hero::after {
-  content: "🍔";
-  position: absolute;
-  right: 7%;
-  bottom: -35px;
-  font-size: 300px;
-  opacity: 0.12;
-  transform: rotate(-8deg);
 }
 
 .home-hero-overlay {
   position: absolute;
   inset: 0;
+
   background:
     radial-gradient(
-      circle at 75% 50%,
-      rgba(229, 57, 53, 0.25),
-      transparent 40%
+      circle at 80% 50%,
+      rgba(229, 57, 53, 0.16),
+      transparent 38%
     );
 }
 
 .home-hero-content {
   position: relative;
   z-index: 2;
-  padding: 80px 0;
+
+  padding: 55px 0;
 }
 
-.hero-small-title,
-.section-label {
+.hero-small-title {
   color: #e53935;
+
   font-size: 11px;
   font-weight: 900;
+
   letter-spacing: 2px;
 }
 
 .home-hero h1 {
-  max-width: 700px;
-  margin: 18px 0;
+  max-width: 650px;
+
+  margin: 14px 0 16px;
+
   color: #ffffff;
-  font-size: clamp(48px, 7vw, 82px);
-  line-height: 0.98;
+
+  font-size: clamp(42px, 6vw, 68px);
+
+  line-height: 1;
+
   font-weight: 950;
-  letter-spacing: -3px;
+
+  letter-spacing: -2px;
 }
 
 .home-hero h1 span {
@@ -75,32 +85,47 @@
 }
 
 .home-hero p {
-  max-width: 550px;
-  margin: 0 0 30px;
+  max-width: 520px;
+
+  margin: 0 0 25px;
+
   color: #c7c7c7;
-  font-size: 17px;
+
+  font-size: 15px;
+
   line-height: 1.6;
 }
 
+
+/* ========================================
+   BOTONES DEL HERO
+======================================== */
+
 .hero-buttons {
   display: flex;
-  gap: 12px;
+
+  gap: 10px;
+
   flex-wrap: wrap;
 }
 
 .hero-primary-button,
 .hero-secondary-button,
-.intro-button,
 .cta-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 23px;
-  border-radius: 9px;
+
+  padding: 12px 21px;
+
+  border-radius: 8px;
+
   text-decoration: none;
+
   font-size: 13px;
   font-weight: 800;
-  transition: 0.2s ease;
+
+  transition: all 0.2s ease;
 }
 
 .hero-primary-button {
@@ -115,149 +140,109 @@
 
 .hero-secondary-button {
   color: #ffffff;
+
   border: 1px solid #555555;
-  background: rgba(255, 255, 255, 0.05);
+
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .hero-secondary-button:hover {
-  background: #ffffff;
   color: #111111;
-}
-
-/* INTRO */
-
-.home-intro {
-  padding: 90px 0;
   background: #ffffff;
 }
 
-.intro-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  align-items: center;
-  gap: 80px;
-}
 
-.intro-text h2 {
-  margin: 12px 0 20px;
-  color: #171717;
-  font-size: clamp(36px, 5vw, 55px);
-  line-height: 1;
-  font-weight: 900;
-  letter-spacing: -2px;
-}
-
-.intro-text h2 span {
-  color: #e53935;
-}
-
-.intro-text p {
-  max-width: 620px;
-  margin: 0 0 12px;
-  color: #707070;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-.intro-button {
-  margin-top: 15px;
-  color: #ffffff;
-  background: #171717;
-}
-
-.intro-button:hover {
-  background: #e53935;
-  transform: translateY(-2px);
-}
-
-.intro-card {
-  padding: 45px;
-  text-align: center;
-  border-radius: 20px;
-  background: #f5f2ec;
-  border: 1px solid #e8e3da;
-}
-
-.intro-card-icon {
-  width: 85px;
-  height: 85px;
-  margin: 0 auto 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #e53935;
-  font-size: 38px;
-}
-
-.intro-card h3 {
-  margin: 0 0 10px;
-  color: #222222;
-  font-size: 22px;
-  font-weight: 900;
-}
-
-.intro-card p {
-  margin: 0;
-  color: #777777;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* CATEGORIAS */
+/* ========================================
+   CATEGORÍAS
+======================================== */
 
 .home-categories {
-  padding: 90px 0;
+  padding: 70px 0;
+  background: #f7f5f1;
 }
 
 .section-heading {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+}
+
+.section-label {
+  color: #e53935;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
 }
 
 .section-heading h2 {
-  margin: 10px 0 8px;
+  margin: 9px 0 7px;
+
   color: #171717;
-  font-size: clamp(34px, 5vw, 48px);
+
+  font-size: clamp(32px, 5vw, 46px);
+
   line-height: 1;
+
   font-weight: 900;
+
   letter-spacing: -1.5px;
 }
 
 .section-heading p {
   margin: 0;
+
   color: #777777;
+
   font-size: 14px;
 }
 
+
+/* ========================================
+   TARJETAS DE CATEGORÍAS
+======================================== */
+
 .category-grid {
   display: grid;
+
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+
+  gap: 15px;
 }
 
 .category-card {
-  min-height: 180px;
-  padding: 27px;
+  min-height: 165px;
+
+  padding: 24px;
+
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+
   border: 1px solid #e5e1da;
-  border-radius: 15px;
+  border-radius: 14px;
+
   color: #222222;
+
   background: #ffffff;
+
   text-decoration: none;
-  transition: 0.25s ease;
+
+  transition: all 0.25s ease;
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+
   border-color: #e53935;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.07);
 }
 
 .category-card-red {
   color: #ffffff;
+
   background: #e53935;
+
   border-color: #e53935;
 }
 
@@ -268,38 +253,50 @@
 
 .category-icon {
   margin-bottom: auto;
-  font-size: 38px;
+
+  font-size: 34px;
 }
 
 .category-card h3 {
-  margin: 0 0 6px;
-  font-size: 19px;
+  margin: 0 0 5px;
+
+  font-size: 18px;
   font-weight: 900;
 }
 
 .category-card p {
   margin: 0;
+
   color: #777777;
+
   font-size: 12px;
 }
 
-/* DESTACADOS */
+
+/* ========================================
+   PRODUCTOS DESTACADOS
+======================================== */
 
 .home-featured {
-  padding: 90px 0;
+  padding: 70px 0;
+
   background: #ffffff;
 }
 
 .featured-heading {
   display: flex;
+
   align-items: flex-end;
   justify-content: space-between;
+
   gap: 20px;
 }
 
 .view-all-link {
   color: #e53935;
+
   text-decoration: none;
+
   font-size: 13px;
   font-weight: 800;
 }
@@ -310,14 +307,20 @@
 
 .featured-grid {
   display: grid;
+
   grid-template-columns: repeat(3, 1fr);
+
   gap: 20px;
 }
 
-/* CTA */
+
+/* ========================================
+   CTA FINAL
+======================================== */
 
 .home-cta {
-  padding: 80px 0;
+  padding: 55px 0;
+
   background: #e53935;
 }
 
@@ -330,36 +333,48 @@
 }
 
 .cta-content h2 {
-  margin: 12px 0;
+  margin: 10px 0;
+
   color: #ffffff;
-  font-size: clamp(40px, 6vw, 65px);
+
+  font-size: clamp(36px, 5vw, 55px);
+
   line-height: 1;
+
   font-weight: 900;
 }
 
 .cta-content p {
-  margin: 0 0 25px;
+  margin: 0 0 22px;
+
   color: #ffe6e5;
-  font-size: 15px;
+
+  font-size: 14px;
 }
 
 .cta-button {
   color: #111111;
+
   background: #ffffff;
 }
 
 .cta-button:hover {
-  transform: translateY(-2px);
-  background: #111111;
   color: #ffffff;
+
+  background: #111111;
+
+  transform: translateY(-2px);
 }
 
-/* RESPONSIVE */
+
+/* ========================================
+   RESPONSIVE - TABLET
+======================================== */
 
 @media (max-width: 900px) {
-  .intro-grid {
-    grid-template-columns: 1fr;
-    gap: 45px;
+
+  .home-hero {
+    min-height: 400px;
   }
 
   .category-grid {
@@ -371,23 +386,34 @@
   }
 }
 
+
+/* ========================================
+   RESPONSIVE - CELULAR
+======================================== */
+
 @media (max-width: 600px) {
+
   .home-hero {
-    min-height: 540px;
+    min-height: 370px;
+  }
+
+  .home-hero-content {
+    padding: 45px 0;
   }
 
   .home-hero h1 {
-    letter-spacing: -2px;
+    font-size: 42px;
+
+    letter-spacing: -1.5px;
   }
 
   .home-hero p {
     font-size: 14px;
   }
 
-  .home-intro,
   .home-categories,
   .home-featured {
-    padding: 60px 0;
+    padding: 55px 0;
   }
 
   .category-grid,
@@ -397,10 +423,36 @@
 
   .featured-heading {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
-  .intro-card {
-    padding: 30px 20px;
+  .category-card {
+    min-height: 150px;
+  }
+
+  .home-cta {
+    padding: 50px 0;
+  }
+}
+
+
+/* ========================================
+   CELULAR PEQUEÑO
+======================================== */
+
+@media (max-width: 430px) {
+
+  .home-hero {
+    min-height: 350px;
+  }
+
+  .home-hero h1 {
+    font-size: 36px;
+  }
+
+  .hero-primary-button,
+  .hero-secondary-button {
+    padding: 11px 17px;
   }
 }

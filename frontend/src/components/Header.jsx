@@ -5,16 +5,26 @@ function Header({ cartCount = 0 }) {
   return (
     <header className="header">
       <div className="header-container">
-        <Link to="/" className="header-logo">
-          <div className="logo-icon">AK</div>
 
-          <div className="logo-text">
-            <span className="logo-name">AK PIZZAS</span>
-            <span className="logo-subtitle">Hamburguesas · Pizzas · Lomos</span>
-          </div>
+        {/* LOGO + NOMBRE */}
+        <Link to="/" className="header-logo">
+
+          <img
+            src="/logo.jpg"
+            alt="AK Pizzas"
+            className="header-logo-image"
+          />
+
+          <span className="header-logo-name">
+            AK PIZZAS
+          </span>
+
         </Link>
 
+
+        {/* NAVEGACIÓN */}
         <nav className="header-nav">
+
           <Link to="/" className="nav-link">
             Inicio
           </Link>
@@ -23,24 +33,44 @@ function Header({ cartCount = 0 }) {
             Menú
           </Link>
 
-          <Link to="/menu?category=combos" className="nav-link nav-highlight">
+          <Link
+            to="/menu?category=combos"
+            className="nav-link nav-highlight"
+          >
             Combos
           </Link>
+
         </nav>
 
+
+        {/* ACCIONES */}
         <div className="header-actions">
-          <Link to="/login" className="account-button" title="Mi cuenta">
+
+          <Link
+            to="/login"
+            className="account-button"
+            title="Mi cuenta"
+          >
             <span className="account-icon">👤</span>
           </Link>
 
-          <Link to="/cart" className="cart-button" title="Carrito">
+          <Link
+            to="/carrito"
+            className="cart-button"
+            title="Carrito"
+          >
             <span className="cart-icon">🛒</span>
 
             {cartCount > 0 && (
-              <span className="cart-count">{cartCount}</span>
+              <span className="cart-count">
+                {cartCount}
+              </span>
             )}
+
           </Link>
+
         </div>
+
       </div>
     </header>
   );

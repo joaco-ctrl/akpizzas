@@ -1,0 +1,421 @@
+
+$(document).ready(function(){
+	//recargar_carrito();
+});
+
+
+function recargar_carrito(){
+	setTimeout(function(){ 
+		$('#shopping-cart-sidebar').load("includes/carrito.php");
+	}, 100);
+}
+
+/*
+function agregar_al_carrito(id){
+	
+	var cantidad = $('#cantidad_'+id).val();
+	
+	$('#mensajes').load("agregar.php?id="+id+"&cantidad="+cantidad, function(){
+		
+		$('#btn_agregar_al_carrito'+id).html('<button type="button" style="float:right;" class="btn btn-orange">AGREGADO</button>');
+		
+		$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+			//$('#cantidad_articulos').html('88');
+		});
+	});	
+}
+*/
+
+function agregar_al_carrito(id){
+	
+	var opcion = $( "#opcion_"+id+" option:selected" ).text();
+	
+	$.ajax({
+	  method: "GET",
+	  url: "agregar.php",
+	  data: { id: id, operacion:'suma', opcion: opcion }
+	})
+	.done(function( msg ) {
+		//alert( "Data Saved: " + msg );
+		if(msg == 'STOCK-LIMITE-ALCANZADO'){
+			//alert('Ya has alcanzado el stock maximo');
+			Swal.fire({
+				position: "center-center",
+				icon: "info",
+				title: "Stock máximo alcanzado",
+				showConfirmButton: false,
+				timer: 2500,
+				timerProgressBar: true
+			  });
+		}else{
+			$('#cant'+id).html(msg);
+		
+			$('#btn_agregar_al_carrito'+id).addClass('enCarrito');
+			
+			$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+				//$('#cantidad_articulos').html('88');
+			});
+		}
+	});
+	/*
+	var cantidad = $('#cantidad_'+id).val();
+	
+	$('#mensajes').load("agregar.php?id="+id+"&cantidad="+cantidad, function(){
+		
+		$('#btn_agregar_al_carrito'+id).html('<button type="button" style="float:right;" class="btn btn-orange">AGREGADO</button>');
+		
+		$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+			//$('#cantidad_articulos').html('88');
+		});
+	});	
+	*/
+}
+
+function agregar_al_carrito_con_opciones(id, opcion, costo, crudoIds){
+	
+	//var  costo = $('#costo_'+id).val().replaceAll('.', '');//quito el . de mil
+	//var opcion = $( "#opcion_"+id+" option:selected" ).text();
+	//alert(id +' '+ opcion +' '+ costo);
+	
+	$.ajax({
+	  method: "GET",
+	  url: "agregar.php",
+	  data: { id: id, operacion:'suma', opcion: opcion , costo: costo, crudoIds:crudoIds }
+	})
+	.done(function( msg ) {
+		if(msg == 'STOCK-LIMITE-ALCANZADO'){
+			//alert('Ya has alcanzado el stock maximo');
+			Swal.fire({
+				position: "center-center",
+				icon: "info",
+				title: "Stock máximo alcanzado",
+				showConfirmButton: false,
+				timer: 2500,
+				timerProgressBar: true
+			  });
+		}else{
+			$('#cant'+id).html(msg);
+			$('#btn_agregar_al_carrito'+id).addClass('enCarrito');
+			
+			$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+				//$('#cantidad_articulos').html('88');
+			});
+		}
+	});
+}
+
+function quitar_al_carrito(id){
+	
+	
+	$.ajax({
+	  method: "GET",
+	  url: "agregar.php",
+	  data: { id: id, operacion:'resta' }
+	})
+	.done(function( msg ) {
+		//alert( "Data Saved: " + msg );
+		$('#cant'+id).html(msg);
+		$('#btn_agregar_al_carrito'+id).addClass('enCarrito');
+		
+		$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+			//$('#cantidad_articulos').html('88');
+		});
+		if($.trim(msg) == '0'){
+			$('#btn_agregar_al_carrito'+id).removeClass('enCarrito');	
+		}
+	});
+	/*
+	var cantidad = $('#cantidad_'+id).val();
+	
+	$('#mensajes').load("agregar.php?id="+id+"&cantidad="+cantidad, function(){
+		
+		$('#btn_agregar_al_carrito'+id).html('<button type="button" style="float:right;" class="btn btn-orange">AGREGADO</button>');
+		
+		$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+			//$('#cantidad_articulos').html('88');
+		});
+	});	
+	*/
+}
+
+function modificar_carrito(identificador,id){
+	
+	var cantidad = $('#producto_'+id).val();
+	//alert(cantidad+' '+id+' '+identificador);
+	$('#mensajes').load("update.php?id="+id+"&cantidad="+cantidad+"&identificador="+identificador, function(){
+		
+		//$('#btn_agregar_al_carrito'+id).html('<button type="button" style="float:right;" class="btn btn-orange">AGREGADO</button>');
+		
+		$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+			//$('#cantidad_articulos').html('88');
+			recargar_carrito();
+		});
+	});	
+}
+
+function buscador(){
+	
+	var buscar = $('#buscar').val();
+	var categoria = $('#cat_a_buscar').val();
+	
+	$('#resultadosBuscador').load("php/scripts.php?activarBuscador=TRUE",{ buscar: buscar, categoria:categoria }, function(){
+		$('#resultadosBuscador').slideDown('slow');
+	});
+}
+
+function newsletter_nuevo_usuario(){
+	var email = $('#newsletter_email').val();
+	//alert(email);
+	$('#mensajes').load("php/scripts.php?NEWSLETTER_NUEVO_USUARIO=TRUE",{ email: email }, function(){
+		$('.newsletter_button').addClass('suscripto').html('SUSCRIPTO');
+		$('#newsletter_email').val('').css('boxShadow',' 0 0 3px rgb(12, 188, 71)');
+	});
+}
+
+
+function cat_a_buscar(cat){
+	
+	$('#cat_a_buscar').val(cat);
+	
+}
+
+
+function ocultarResultados(){
+	setTimeout(function(){ 
+		$('#resultadosBuscador').slideUp('slow'); 
+	}, 2000);
+	
+}
+
+
+function verInfo(a){
+	$('#detalles_producto').load("php/scripts.php?VER_DETALLES=TRUE",{ producto: a }, function(){
+		//$('.newsletter_button').addClass('suscripto').html('SUSCRIPTO');
+		//$('#newsletter_email').val('').css('boxShadow',' 0 0 3px rgb(12, 188, 71)');
+	});
+}
+
+
+function verFotoDetalle(a){
+	$('.fotoProducto').slideUp('fast');
+	$('#fotop'+a).slideDown('fast');
+	
+}
+
+
+
+$(document).ready(function(){
+	
+//function BUSCADOR
+
+	var typingTimer;                //timer identifier
+	
+	//on keyup, start the countdown
+	$('#buscador').on('keyup', function () {
+		var a = $('#buscador').val();
+		console.log(a.length);
+	  clearTimeout(typingTimer);
+	  if( a.length >= 3){
+	  
+	  	typingTimer = setTimeout(buscarProductos, 1000);
+	  
+		$('#resultadosBusqueda').html('<img src="images/loader-orange.gif" alt="Cargando Productos" style="width: 100px;margin-left: 34%;">');
+		$('#seccionBuscador').addClass('seccionBuscadorFlotante').removeClass('seccionBuscador');
+		
+	  }else{
+		$('#resultadosBusqueda').html('');
+		
+		$('#seccionProductos').slideDown('slow');  
+		
+		$('#btnLupa').html('<i class="fa fa-search"></i>');
+		setTimeout(function(){
+			$('#seccionBuscador').removeClass('seccionBuscadorFlotante').addClass('seccionBuscador');
+		}, 3000);
+	  }
+	});
+	
+	//on keydown, clear the countdown 
+	$('#buscador').on('keydown', function () {
+	  clearTimeout(typingTimer);
+	});
+	
+	//user is "finished typing," do something
+	function buscarProductos () {
+	  
+		var a = $('#buscador').val();
+			
+		$('#resultadosBusqueda').load("includes/buscador.php",{ producto: a }, function(){
+		
+		});
+		
+		$('#seccionProductos').slideUp('slow');
+		$('#btnLupa').html('<i class="fa fa-times"></i>');
+			
+	}
+
+	
+
+});
+
+function resetBuscar(){
+	$('#resultadosBusqueda').html('');
+	$('#buscador').val('');
+	$('#btnLupa').html('<i class="fa fa-search"></i>');
+	$('#seccionProductos').slideDown('slow');
+	$('#seccionBuscador').removeClass('seccionBuscadorFlotante').addClass('seccionBuscador');
+}
+
+
+/*Categorias en SELECT para VIP*/
+function selectCategoria(){
+	let id_cat = $("#selectCategoria option:selected").val();
+	console.log(id_cat);
+	$('.tab-pane').removeClass('active');
+	$('#'+id_cat).addClass('active');
+}
+
+
+//CUPONES DE DESCUENTO
+function validar_cupon(){
+
+	let cupon = document.getElementById('cupon_descuento');
+	if(cupon.value != ''){
+//alert(cupon.value);
+		$.ajax({
+			method: "GET",
+			url: "includes/descuentos.php",
+			data: { cupon: cupon.value }
+		})
+			.done(function( msg ) {
+				if( msg.error == ''){
+					$('#validador_cupones').slideUp('slow');
+					$('#respuesta_cupon').html( msg.respuesta );
+					$('#detalles_del_descuento').html( msg.detalles);
+					$('#total_descuento').html( '<h4>Descuento: <span>-$ '+msg.descuento+'</span></h4>');
+					$('#remover_cupon,#descuento,#contiene_detalles_del_descuento').fadeIn('slow');
+					$('#menorprecioCD').css({"color": "grey", "font-size": "19px", "text-decoration": "line-through"});
+					//$('#total_con_descuento').html( ' <small>$</small> '+msg.total_con_descuento);
+					//console.log(msg.b);
+
+					//$('.final_inc_desc').slideDown('slow');
+					//$('#total_final_vista').html(msg.total_con_descuento);
+					//$('#costo_total_productos').val(msg.total_con_descuento);
+
+					//$('#total_dc').val(msg.total_con_descuento);
+					//metodo_de_pago();
+
+
+					$.ajax({
+						method: "GET",
+						url: "php/scripts.php?checkout=true",
+						data: { cupon: cupon.value }
+					})
+						.done(function( msg ) {
+							if( msg.error == ''){
+								$('.final_inc_desc').slideDown('slow');
+								$('#total_final_vista').html(msg.final);
+							}
+						});
+
+				}else{
+					Swal.fire({ icon: 'error', title: 'Oops...', html: msg.error });
+				}
+			//alert( "Data Saved: " + msg );
+			});
+	}else{
+		Swal.fire({ icon: 'error', title: 'Oops...', html: 'Ingrese un Codigo de Cupón en el campo de texto' });
+	}
+	
+}
+
+$(document).ready(function(){
+
+	$(document).on('click', '#btn_detalles_del_descuento', function() {
+		$('#detalles_del_descuento').slideToggle('slow');
+	});
+
+	$(document).on('click', '#remover_cupon', function() {
+		remover_cupon();
+	});
+	
+});
+
+
+//$("#remover_cupon").click(function(){
+function remover_cupon(){
+		$.ajax({
+			method: "GET",
+			url: "includes/descuentos.php",
+			data: { cupon: '' }
+		})
+			.done(function( msg ) {
+
+			$('#cupon_descuento').val('');
+			$('#validador_cupones').slideDown('slow');
+			$('#respuesta_cupon').html('');
+			$('#total_descuento').html('');
+			$('#remover_cupon,#descuento,#contiene_detalles_del_descuento').fadeOut('slow');
+			$('#menorprecioCD').css({"color": "black", "font-size": "22px", "text-decoration": "none"});
+			$('#total_con_descuento').html('');
+
+			$.ajax({
+				method: "GET",
+				url: "php/scripts.php?checkout=true",
+				data: { cupon: '' }
+			})
+				.done(function( msg ) {
+					if( msg.error == ''){
+						$('.final_inc_desc').slideDown('slow');
+						$('#total_final_vista').html(msg.final);
+					}
+				});
+		});
+
+};
+
+
+function abrirMapa(){
+	$("#mapaTiendas").modal('show');
+	$("#iframeMapaTiendas").attr("src", $("#urlMapaTiendas").val());
+}
+
+
+function vaciarCarrito(){
+	Swal.fire({
+		title: "Estas Seguro?",
+		text: "Se borrarán todos los productos seleccionados",
+		icon: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#3085d6",
+		cancelButtonColor: "#d33",
+		cancelButtonText: "Cancelar",
+		confirmButtonText: "<i class='fa fa-trash-o' aria-hidden='true'></i> Sí, borrarlos!"
+
+	  }).then((result) => {
+		if (result.isConfirmed) {
+			$.ajax({
+				method: "GET",
+				url: "php/scripts.php",
+				data: { cancelar_compra:true }
+			})
+			.done(function( msg ) {
+				
+				if( msg == 'ok'){
+					location.reload();
+				}else{
+					Swal.fire({ icon: 'error', title: 'Oops...', html: msg.error });
+				}
+				//alert( "Data Saved: " + msg );
+				/*$('#cant'+id).html(msg);
+				$('#btn_agregar_al_carrito'+id).addClass('enCarrito');
+				
+				$('#shc-side-open').load("php/scripts.php?consultar_carrito=TRUE", function(){
+					//$('#cantidad_articulos').html('88');
+				});*/
+				
+			});
+		}
+	  });
+	  
+	
+}
