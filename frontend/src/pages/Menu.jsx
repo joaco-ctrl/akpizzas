@@ -5,17 +5,7 @@ import CategoryFilter from "../components/CategoryFilter";
 import { categories } from "../components/CategoryFilter";
 import "./Menu.css";
 
-/*
-|--------------------------------------------------------------------------
-| CATÁLOGO DE PRODUCTOS
-|--------------------------------------------------------------------------
-*/
-
 export const products = [
-
-  // ============================================================
-  // COMBOS HAMBURGUESA + PAPAS + BEBIDA
-  // ============================================================
 
   {
     id: "combo-americana-pepsi",
@@ -137,10 +127,6 @@ export const products = [
       "Doble medallón 110grms, panceta ahumada crocante, cheddar x4, papas y lata 7up.",
   },
 
-  // ============================================================
-  // PROMO PIZZAS
-  // ============================================================
-
   {
     id: "promo-2-muzzas",
     name: "2 Muzzas (sin gaseosa)",
@@ -168,10 +154,6 @@ export const products = [
     description: "",
   },
 
-  // ============================================================
-  // VEGGIE
-  // ============================================================
-
   {
     id: "vegetariana",
     name: "Vegetariana",
@@ -191,10 +173,6 @@ export const products = [
     description:
       "Pan, medallón vegano (zanahoria, lenteja), lechuga, tomate, papas fritas.",
   },
-
-  // ============================================================
-  // NUGGETS Y AROS
-  // ============================================================
 
   {
     id: "aros-mayonesa",
@@ -231,10 +209,6 @@ export const products = [
     price: 7800,
     description: "",
   },
-
-  // ============================================================
-  // GASEOSAS
-  // ============================================================
 
   {
     id: "mirinda-lata",
@@ -299,10 +273,6 @@ export const products = [
     description: "",
   },
 
-  // ============================================================
-  // PAPAS
-  // ============================================================
-
   {
     id: "porcion-papas",
     name: "Porción de papas",
@@ -312,10 +282,6 @@ export const products = [
     description: "",
   },
 
-  // ============================================================
-  // HAMBURGUESAS SIMPLES
-  // ============================================================
-
   {
     id: "simple-papas",
     name: "Porción de papas",
@@ -324,10 +290,6 @@ export const products = [
     price: 4500,
     description: "",
   },
-
-  // ============================================================
-  // HAMBURGUESAS DOBLES
-  // ============================================================
 
   {
     id: "bacon-jam",
@@ -459,10 +421,6 @@ export const products = [
       "Pan, doble carne, cheddar x3, papas fritas.",
   },
 
-  // ============================================================
-  // HAMBURGUESAS TRIPLES
-  // ============================================================
-
   {
     id: "tasty-triple",
     name: "Tasty",
@@ -563,10 +521,6 @@ export const products = [
       "Pan, carne x3, cheddar x3, manteca de roquefort, papas fritas.",
   },
 
-  // ============================================================
-  // HAMBURGUESAS SIN PAPAS
-  // ============================================================
-
   {
     id: "cheeseburger-sin-papas",
     name: "Cheeseburger doble",
@@ -603,10 +557,6 @@ export const products = [
     description: "",
   },
 
-  // ============================================================
-  // LOMOS
-  // ============================================================
-
   {
     id: "lomo-completo",
     name: "Completo",
@@ -636,10 +586,6 @@ export const products = [
     description:
       "Pan, carne (280grms), papas fritas.",
   },
-
-  // ============================================================
-  // MILANESAS
-  // ============================================================
 
   {
     id: "mila-completa",
@@ -680,10 +626,6 @@ export const products = [
     description:
       "Pan, jamón, queso, lechuga, tomate, salsa y papas fritas.",
   },
-
-  // ============================================================
-  // PIZZAS PARA HORNEAR
-  // ============================================================
 
   {
     id: "pizza-pollo",
@@ -890,11 +832,7 @@ export const products = [
   },
 ];
 
-/*
-|--------------------------------------------------------------------------
-| MENU
-|--------------------------------------------------------------------------
-*/
+/* MENU*/
 
 function Menu({ onAddToCart }) {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -23,7 +23,7 @@ function Home({ onAddToCart }) {
   return (
     <main className="home">
 
-      {/* ================= HERO ================= */}
+      {/* HERO */}
 
       <section className="home-hero">
 
@@ -67,7 +67,7 @@ function Home({ onAddToCart }) {
       </section>
 
 
-      {/* ================= CATEGORÍAS ================= */}
+      {/* CATEGORÍAS  */}
 
       <section className="home-categories">
 
@@ -207,7 +207,7 @@ function Home({ onAddToCart }) {
       </section>
 
 
-      {/* ================= CTA ================= */}
+      {/* CTA  */}
 
       <section className="home-cta">
 

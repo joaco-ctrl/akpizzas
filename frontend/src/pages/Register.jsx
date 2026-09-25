@@ -154,7 +154,7 @@ function Register() {
             ¿Ya tenés una cuenta?
           </span>
 
-          <Link to="/login">
+          <Link to="/Login">
             Iniciar sesión
           </Link>
         </div>

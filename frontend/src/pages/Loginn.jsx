@@ -120,9 +120,8 @@ function Login() {
               ¿Todavía no tenés una cuenta?
             </span>
 
-            <Link to="/register">
-              Crear cuenta
-            </Link>
+            <Link to="/registro"> Crear cuenta </Link>
+            
           </div>
 
         </div>

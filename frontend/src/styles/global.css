@@ -36,13 +36,10 @@ img {
   max-width: 100%;
 }
 
-/* ---------- ROOT ---------- */
 
 #root {
   min-height: 100vh;
 }
-
-/* ---------- APP ---------- */
 
 .app {
   min-height: 100vh;
@@ -54,8 +51,6 @@ img {
   flex: 1;
 }
 
-/* ---------- CONTAINER ---------- */
-
 .container {
   width: 100%;
   max-width: 1200px;
@@ -63,7 +58,6 @@ img {
   padding: 0 20px;
 }
 
-/* ---------- TITULOS ---------- */
 
 h1,
 h2,
@@ -85,7 +79,7 @@ h6 {
   margin-bottom: 30px;
 }
 
-/* ---------- BOTONES ---------- */
+/*BOTONES */
 
 .btn {
   display: inline-flex;
@@ -136,7 +130,6 @@ h6 {
   background-color: #eee;
 }
 
-/* ---------- PRODUCTOS ---------- */
 
 .products-grid {
   display: grid;
@@ -144,7 +137,7 @@ h6 {
   gap: 24px;
 }
 
-/* ---------- FORMULARIOS ---------- */
+/*FORMULARIOS*/
 
 .form-group {
   display: flex;
@@ -188,7 +181,6 @@ h6 {
   min-height: 100px;
 }
 
-/* ---------- MENSAJES ---------- */
 
 .error-message {
   color: #d62828;
@@ -202,8 +194,6 @@ h6 {
   margin-top: 5px;
 }
 
-/* ---------- LOADING ---------- */
-
 .loading {
   min-height: 300px;
 
@@ -214,7 +204,6 @@ h6 {
   color: #666;
 }
 
-/* ---------- EMPTY STATE ---------- */
 
 .empty-state {
   padding: 60px 20px;
@@ -230,7 +219,6 @@ h6 {
   margin-bottom: 20px;
 }
 
-/* ---------- SECCIONES ---------- */
 
 .section {
   padding: 60px 0;
@@ -243,7 +231,6 @@ h6 {
   font-weight: 800;
 }
 
-/* ---------- SCROLLBAR ---------- */
 
 ::-webkit-scrollbar {
   width: 8px;
@@ -262,14 +249,12 @@ h6 {
   background: #666;
 }
 
-/* ---------- SELECCIÓN DE TEXTO ---------- */
 
 ::selection {
   background-color: #e63946;
   color: white;
 }
 
-/* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 1000px) {
   .products-grid {

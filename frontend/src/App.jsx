@@ -22,45 +22,40 @@ function App() {
       <main className="app-main">
         <Routes>
 
-          <Route path="/" element={<Home />} />
+          {/* LOGIN */}
+          <Route path="/" element={<Login />} />
 
+          {/* REGISTRO */}
+          <Route path="/registro" element={<Register />} />
+
+          {/* HOME */}
+          <Route path="/home" element={<Home />} />
+
+          {/* MENÚ */}
           <Route path="/menu" element={<Menu />} />
 
-          <Route
-            path="/producto/:id"
-            element={<ProductDetail />}
-          />
+          {/* DETALLE DEL PRODUCTO */}
+          <Route path="/producto/:id" element={<ProductDetail />} />
 
-          <Route
-            path="/carrito"
-            element={<Cart />}
-          />
+          {/* CARRITO */}
+          <Route path="/carrito" element={<Cart />} />
 
-          <Route
-            path="/login"
-            element={<Login />}
-          />
+          {/* CHECKOUT */}
+          <Route path="/checkout" element={<Checkout />} />
 
-          <Route
-            path="/registro"
-            element={<Register />}
-          />
-
-          <Route
-            path="/checkout"
-            element={<Checkout />}
-          />
-
+          {/* PEDIDO CONFIRMADO */}
           <Route
             path="/pedido-confirmado"
             element={<OrderConfirmation />}
           />
 
+          {/* MIS PEDIDOS */}
           <Route
             path="/mis-pedidos"
             element={<MyOrders />}
           />
 
+          {/* CUALQUIER RUTA QUE NO EXISTA */}
           <Route
             path="*"
             element={<Navigate to="/" replace />}
