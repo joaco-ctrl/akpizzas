@@ -21,8 +21,15 @@ function obtenerProducto(idProducto, callback) {
 function agregarDetalle(idPedido, idProducto, cantidad, precio, callback) {
     const query = `INSERT INTO detalle_pedido
         (pedido_id, producto_id, cantidad, precio_unitario, subtotal)
-        VALUES (?, ?, ?, ?, ?)`;
-    conexion.query(query, [idPedido, idProducto, cantidad, precio, precio * cantidad], callback);
+        VALUES (?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            cantidad = cantidad + VALUES(cantidad),
+            precio_unitario = VALUES(precio_unitario),
+            subtotal = cantidad * precio_unitario`;
+    conexion.query(query, [idPedido, idProducto, cantidad, precio, precio * cantidad], error => {
+        if (error) return callback(error);
+        actualizarTotales(idPedido, callback);
+    });
 }
 
 function agregar(idUsuario, idProducto, cantidad, callback) {
@@ -54,6 +61,21 @@ function listar(idUsuario, callback) {
     conexion.query(query, [idUsuario], callback);
 }
 
+function eliminar(idUsuario, idDetalle, callback) {
+    const findQuery = `SELECT d.id, d.pedido_id
+        FROM detalle_pedido d INNER JOIN pedidos pe ON pe.id = d.pedido_id
+        WHERE d.id = ? AND pe.usuario_id = ? AND pe.estado_pedido = 'PENDIENTE'`;
+    conexion.query(findQuery, [idDetalle, idUsuario], (error, detalles) => {
+        if (error) return callback(error);
+        if (!detalles.length) return callback(Object.assign(new Error('Detalle no encontrado'), { status: 404 }));
+
+        conexion.query('DELETE FROM detalle_pedido WHERE id = ?', [idDetalle], deleteError => {
+            if (deleteError) return callback(deleteError);
+            actualizarTotales(detalles[0].pedido_id, callback);
+        });
+    });
+}
+
 function modificarCantidad(idUsuario, idDetalle, cantidad, callback) {
     const findQuery = `SELECT d.id, d.pedido_id, d.precio_unitario
         FROM detalle_pedido d INNER JOIN pedidos pe ON pe.id = d.pedido_id
@@ -81,11 +103,35 @@ function actualizarTotales(idPedido, callback) {
 }
 
 function calcularTotal(idUsuario, idPedido, callback) {
-    const query = `SELECT pe.id, COALESCE(SUM(d.precio_unitario * d.cantidad), 0) AS total
-        FROM pedidos pe LEFT JOIN detalle_pedido d ON d.pedido_id = pe.id
-        WHERE pe.id = ? AND pe.usuario_id = ?
-        GROUP BY pe.id`;
+    const query = `SELECT pe.id, pe.total
+        FROM pedidos pe
+        WHERE pe.id = ? AND pe.usuario_id = ?`;
     conexion.query(query, [idPedido, idUsuario], callback);
 }
+function listarPedidos(idUsuario, callback) {
+    const query = `SELECT pe.id, pe.fecha, pe.total, pe.estado_pedido, pe.estado_pago,
+        d.producto_id, d.cantidad, d.precio_unitario, p.nombre
+        FROM pedidos pe
+        LEFT JOIN detalle_pedido d ON d.pedido_id = pe.id
+        LEFT JOIN productos p ON p.id = d.producto_id
+        WHERE pe.usuario_id = ? AND pe.estado_pedido <> 'PENDIENTE'
+        ORDER BY pe.fecha DESC, pe.id DESC, d.id`;
+    conexion.query(query, [idUsuario], callback);
+}
 
-module.exports = { agregar, listar, modificarCantidad, calcularTotal };
+function actualizarEntrega(idUsuario, idPedido, metodoEntrega, metodoPago, direccion, costoEnvio, callback) {
+    const query = `
+        UPDATE pedidos
+        SET metodo_entrega = ?,
+            direccion = ?,
+            costo_envio = ?,
+            metodo_pago = ?,
+            estado_pedido = IF(? = 'EFECTIVO', 'EN_PREPARACION', estado_pedido),
+            total = subtotal + ?
+        WHERE id = ? AND usuario_id = ? AND estado_pedido = 'PENDIENTE'
+          AND EXISTS (SELECT 1 FROM detalle_pedido WHERE pedido_id = pedidos.id)
+    `;
+    conexion.query(query, [metodoEntrega, direccion, costoEnvio, metodoPago, metodoPago, costoEnvio, idPedido, idUsuario], callback);
+}
+
+module.exports = { agregar, listar, eliminar, modificarCantidad, listarPedidos, calcularTotal, actualizarEntrega };

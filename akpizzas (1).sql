@@ -112,6 +112,21 @@ CREATE TABLE `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
+INSERT INTO `categorias` (`id`, `nombre`) VALUES
+(1, 'Combo Hamburguesa + Papas + Bebida'),
+(2, 'Promo Pizzas para Hornear'),
+(3, 'Veggie'),
+(4, 'Nuggets y Aros de Cebolla'),
+(5, 'Gaseosas'),
+(6, 'Papas Fritas'),
+(7, 'Hamburguesas Simples'),
+(8, 'Hamburguesas Dobles'),
+(9, 'Hamburguesas Triples'),
+(10, 'Hamburguesas Sin Papas'),
+(11, 'Lomos'),
+(12, 'Milanesas'),
+(13, 'Pizzas para Hornear');
+
 INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `telefono`, `direccion`, `rol`, `activo`, `created_at`, `updated_at`) VALUES
 (1, 'admin', 'admin', 'admin@akpizzas.com', '$2b$10$Rgpf6YPjx0ob4WcdDg/D4OjbHkyWruxijoal68RZGzOhS2gT/y0Dq', '', '', 'admin', 1, '2026-09-04 12:12:08', '2026-09-04 12:13:18');
 

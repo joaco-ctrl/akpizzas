@@ -1,0 +1,131 @@
+.confirmation-page {
+  min-height: 75vh;
+  padding: 70px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f5f1;
+}
+
+.confirmation-card {
+  width: min(650px, 92%);
+  padding: 55px;
+  box-sizing: border-box;
+  text-align: center;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.confirmation-icon {
+  width: 75px;
+  height: 75px;
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #2e7d32;
+  font-size: 35px;
+  font-weight: 900;
+}
+
+.confirmation-card h1 {
+  margin: 12px 0;
+  color: #202020;
+  font-size: 40px;
+  font-weight: 900;
+}
+
+.confirmation-card > p {
+  max-width: 500px;
+  margin: 0 auto 30px;
+  color: #777777;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* INFO */
+
+.confirmation-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.confirmation-info > div {
+  padding: 17px;
+  text-align: left;
+  border-radius: 10px;
+  background: #f6f5f2;
+}
+
+.confirmation-info span,
+.confirmation-info strong,
+.confirmation-info small {
+  display: block;
+}
+
+.confirmation-info span {
+  margin-bottom: 6px;
+  color: #e53935;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.confirmation-info strong {
+  color: #222222;
+  font-size: 12px;
+}
+
+.confirmation-info small {
+  margin-top: 3px;
+  color: #777777;
+  font-size: 10px;
+}
+
+/* BOTONES */
+
+.confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.confirmation-actions a {
+  padding: 13px 18px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #e53935;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.confirmation-actions a:last-child {
+  color: #222222;
+  background: #eeeeee;
+}
+
+.confirmation-actions a:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 600px) {
+  .confirmation-card {
+    padding: 35px 22px;
+  }
+
+  .confirmation-card h1 {
+    font-size: 32px;
+  }
+
+  .confirmation-info {
+    grid-template-columns: 1fr;
+  }
+}

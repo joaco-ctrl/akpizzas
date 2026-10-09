@@ -1,0 +1,159 @@
+.orders-page {
+  min-height: 75vh;
+  padding: 55px 0 90px;
+  background: #f7f5f1;
+}
+
+.orders-container {
+  width: min(900px, 92%);
+  margin: 0 auto;
+}
+
+.orders-heading {
+  margin-bottom: 35px;
+}
+
+.orders-heading h1 {
+  margin: 10px 0 8px;
+  color: #171717;
+  font-size: 50px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.orders-heading p {
+  margin: 0;
+  color: #777777;
+  font-size: 14px;
+}
+
+/* PEDIDOS */
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.order-card {
+  padding: 23px;
+  border: 1px solid #e4e0da;
+  border-radius: 13px;
+  background: #ffffff;
+}
+
+.order-top {
+  padding-bottom: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.order-top span:first-child {
+  color: #999999;
+  font-size: 10px;
+}
+
+.order-top h2 {
+  margin: 4px 0 0;
+  color: #222222;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.order-status {
+  padding: 7px 10px;
+  border-radius: 20px;
+  color: #2e7d32;
+  background: #edf7ed;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.order-body {
+  padding: 17px 0;
+}
+
+.order-date {
+  margin-bottom: 10px;
+  color: #777777;
+  font-size: 11px;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.order-items span {
+  color: #444444;
+  font-size: 12px;
+}
+
+.order-bottom {
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #eeeeee;
+}
+
+.order-bottom span {
+  color: #888888;
+  font-size: 11px;
+}
+
+.order-bottom strong {
+  color: #e53935;
+  font-size: 15px;
+}
+
+/* CTA */
+
+.orders-cta {
+  margin-top: 30px;
+  padding: 35px;
+  text-align: center;
+  border-radius: 13px;
+  background: #171717;
+}
+
+.orders-cta h2 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.orders-cta p {
+  margin: 0 0 18px;
+  color: #888888;
+  font-size: 12px;
+}
+
+.orders-cta a {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #e53935;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+@media (max-width: 600px) {
+  .orders-heading h1 {
+    font-size: 40px;
+  }
+
+  .order-card {
+    padding: 18px;
+  }
+
+  .orders-cta {
+    padding: 30px 20px;
+  }
+}

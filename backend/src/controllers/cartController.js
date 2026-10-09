@@ -18,6 +18,13 @@ function listar(req, res) {
     });
 }
 
+function eliminar(req, res) {
+    cartService.eliminar(req.usuario.id, req.params.idDetalle, error => {
+        if (error) return res.status(error.status || 500).json({ error: error.status ? error.message : 'Error al eliminar del carrito' });
+        res.json({ mensaje: 'Producto eliminado del carrito' });
+    });
+}
+
 function modificarCantidad(req, res) {
     const cantidad = req.body.cantidad;
     if (!Number.isInteger(cantidad) || cantidad < 1) {
@@ -37,4 +44,50 @@ function calcularTotal(req, res) {
     });
 }
 
-module.exports = { agregar, listar, modificarCantidad, calcularTotal };
+function listarPedidos(req, res) {
+    cartService.listarPedidos(req.usuario.id, (error, filas) => {
+        if (error) return res.status(500).json({ error: 'Error al obtener los pedidos' });
+        const pedidos = new Map();
+        filas.forEach(fila => {
+            if (!pedidos.has(fila.id)) {
+                pedidos.set(fila.id, {
+                    id: fila.id,
+                    fecha: fila.fecha,
+                    total: Number(fila.total),
+                    estadoPedido: fila.estado_pedido,
+                    estadoPago: fila.estado_pago,
+                    productos: []
+                });
+            }
+            if (fila.producto_id) {
+                pedidos.get(fila.id).productos.push({
+                    id: fila.producto_id,
+                    nombre: fila.nombre,
+                    cantidad: Number(fila.cantidad),
+                    precio: Number(fila.precio_unitario)
+                });
+            }
+        });
+        res.json(Array.from(pedidos.values()));
+    });
+}
+
+
+function actualizarEntrega(req, res) {
+    const { idPedido, metodoEntrega, metodoPago, direccion, costoEnvio = 0 } = req.body;
+    if (!Number.isInteger(Number(idPedido)) || !['DELIVERY', 'RETIRO_LOCAL'].includes(metodoEntrega) ||
+        metodoPago !== 'EFECTIVO' || !Number.isFinite(Number(costoEnvio)) || Number(costoEnvio) < 0) {
+        return res.status(400).json({ error: 'Los datos de entrega o pago no son válidos' });
+    }
+    if (metodoEntrega === 'DELIVERY' && !direccion) {
+        return res.status(400).json({ error: 'La dirección es obligatoria para delivery' });
+    }
+
+    cartService.actualizarEntrega(req.usuario.id, Number(idPedido), metodoEntrega, metodoPago, direccion || null, Number(costoEnvio), (error, resultado) => {
+        if (error) return res.status(500).json({ error: 'Error al actualizar el método de entrega' });
+        if (!resultado.affectedRows) return res.status(404).json({ error: 'Pedido pendiente no encontrado' });
+        res.json({ mensaje: 'Datos de entrega actualizados correctamente' });
+    });
+}
+
+module.exports = { agregar, listar, eliminar, modificarCantidad, listarPedidos, calcularTotal, actualizarEntrega };

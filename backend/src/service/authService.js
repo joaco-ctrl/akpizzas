@@ -37,7 +37,16 @@ function register(data, callback) {
     });
 }
 
+function obtenerPerfil(idUsuario, callback) {
+    conexion.query(
+        'SELECT id, email, rol FROM usuarios WHERE id = ? AND activo = 1',
+        [idUsuario],
+        callback
+    );
+}
+
 module.exports = {
     login,
-    register
+    register,
+    obtenerPerfil
 };
