@@ -118,8 +118,9 @@ function ProductDetail({ products = [], onAddToCart }) {
 
                 <button
                   type="button"
+                  disabled={quantity >= 99}
                   onClick={() =>
-                    setQuantity((value) => value + 1)
+                    setQuantity((value) => Math.min(99, value + 1))
                   }
                 >
                   +

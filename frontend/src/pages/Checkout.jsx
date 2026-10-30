@@ -7,10 +7,7 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: "",
-    phone: "",
     address: "",
-    notes: "",
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -50,7 +47,6 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
         metodoEntrega: "DELIVERY",
         metodoPago: "EFECTIVO",
         direccion: form.address,
-        costoEnvio: 0,
       });
 
       await onOrderPlaced?.();
@@ -101,7 +97,7 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
           </h1>
 
           <p>
-            Completá tus datos para realizar el pedido.
+            Indicá la dirección de entrega y pagá en efectivo al recibir.
           </p>
         </div>
 
@@ -112,44 +108,6 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
             onSubmit={handleSubmit}
           >
             {error && <p role="alert">{error}</p>}
-
-            <section className="checkout-section">
-
-              <h2>
-                Datos de contacto
-              </h2>
-
-              <div className="checkout-form-grid">
-
-                <label>
-                  Nombre
-
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="Tu nombre"
-                    required
-                  />
-                </label>
-
-                <label>
-                  Teléfono
-
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder="Tu teléfono"
-                    required
-                  />
-                </label>
-
-              </div>
-
-            </section>
 
             <section className="checkout-section">
 
@@ -165,20 +123,9 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
                   name="address"
                   value={form.address}
                   onChange={handleChange}
+                  maxLength="255"
                   placeholder="Dirección de entrega"
                   required
-                />
-              </label>
-
-              <label>
-                Notas del pedido
-
-                <textarea
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  placeholder="Alguna aclaración para tu pedido..."
-                  rows="4"
                 />
               </label>
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import api, { getApiError } from "./services/api";
 
@@ -65,7 +65,7 @@ function RequireAdmin({ user, isLoading, children }) {
 function App() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartRows, setCartRows] = useState([]);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(
     Boolean(localStorage.getItem("akpizzas_token"))
@@ -73,6 +73,20 @@ function App() {
   const isAuthenticated = Boolean(user);
   const [catalogError, setCatalogError] = useState("");
   const [notice, setNotice] = useState("");
+  const cartItems = useMemo(() => cartRows.map((item) => {
+    const product = products.find((entry) => entry.id === Number(item.producto_id));
+    return {
+      ...product,
+      id: Number(item.id),
+      productId: Number(item.producto_id),
+      orderId: Number(item.pedido_id),
+      name: item.nombre,
+      categoryName: product?.categoryName || "",
+      image: product?.image || "",
+      price: Number(item.precio_unitario),
+      quantity: Number(item.cantidad),
+    };
+  }), [cartRows, products]);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -93,9 +107,13 @@ function App() {
         setUser(data.usuario);
         localStorage.setItem("akpizzas_user", JSON.stringify(data.usuario));
       })
-      .catch(() => {
-        localStorage.removeItem("akpizzas_token");
-        localStorage.removeItem("akpizzas_user");
+      .catch((error) => {
+        if (error.response?.status === 401) {
+          localStorage.removeItem("akpizzas_token");
+          localStorage.removeItem("akpizzas_user");
+        } else {
+          setNotice(getApiError(error, "No se pudo verificar la sesión."));
+        }
       })
       .finally(() => setAuthLoading(false));
   }, []);
@@ -103,7 +121,7 @@ function App() {
   useEffect(() => {
     const handleUnauthorized = () => {
       setUser(null);
-      setCartItems([]);
+      setCartRows([]);
       setAuthLoading(false);
       navigate("/login", { replace: true });
     };
@@ -125,47 +143,21 @@ function App() {
 
     api.get("/cart/carrito")
       .then(({ data }) => {
-        setCartItems(data.map((item) => {
-          const product = products.find((entry) => entry.id === Number(item.producto_id));
-          return {
-            ...product,
-            id: Number(item.id),
-            productId: Number(item.producto_id),
-            orderId: Number(item.pedido_id),
-            name: item.nombre,
-            categoryName: product?.categoryName || "",
-            image: product?.image || "",
-            price: Number(item.precio_unitario),
-            quantity: Number(item.cantidad),
-          };
-        }));
+        setCartRows(data);
       })
       .catch((error) => {
         if (error.response?.status === 401) {
           setUser(null);
-          setCartItems([]);
+          setCartRows([]);
         } else {
           setNotice(getApiError(error, "No se pudo cargar el carrito."));
         }
       });
-  }, [isAuthenticated, products, user?.rol]);
+  }, [isAuthenticated, user?.rol]);
 
   const refreshCart = async () => {
     const { data } = await api.get("/cart/carrito");
-    setCartItems(data.map((item) => {
-      const product = products.find((entry) => entry.id === Number(item.producto_id));
-      return {
-        ...product,
-        id: Number(item.id),
-        productId: Number(item.producto_id),
-        orderId: Number(item.pedido_id),
-        name: item.nombre,
-        categoryName: product?.categoryName || "",
-        image: product?.image || "",
-        price: Number(item.precio_unitario),
-        quantity: Number(item.cantidad),
-      };
-    }));
+    setCartRows(data);
   };
 
   const handleLogin = (loggedInUser, redirectTo) => {
@@ -212,7 +204,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("akpizzas_token");
     localStorage.removeItem("akpizzas_user");
-    setCartItems([]);
+    setCartRows([]);
     setUser(null);
     setNotice("");
     navigate("/");

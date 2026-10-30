@@ -10,6 +10,17 @@ const orderStates = [
   { value: "CANCELADO", label: "Cancelado" },
 ];
 
+function nextStates(order) {
+  if (order.estadoPedido === "EN_PREPARACION") return ["LISTO", "CANCELADO"];
+  if (order.estadoPedido === "LISTO") {
+    return order.metodoEntrega === "DELIVERY"
+      ? ["EN_CAMINO", "CANCELADO"]
+      : ["ENTREGADO", "CANCELADO"];
+  }
+  if (order.estadoPedido === "EN_CAMINO") return ["ENTREGADO", "CANCELADO"];
+  return [];
+}
+
 const currency = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
@@ -185,9 +196,11 @@ function AdminOrders() {
                     <select
                       value={order.estadoPedido}
                       onChange={(event) => updateStatus(order.id, event.target.value)}
-                      disabled={updatingOrderId === order.id}
+                      disabled={updatingOrderId === order.id || nextStates(order).length === 0}
                     >
-                      {orderStates.map((state) => (
+                      {[orderStates.find((state) => state.value === order.estadoPedido),
+                        ...nextStates(order).map((value) => orderStates.find((state) => state.value === value))]
+                        .filter(Boolean).map((state) => (
                         <option key={state.value} value={state.value}>{state.label}</option>
                       ))}
                     </select>

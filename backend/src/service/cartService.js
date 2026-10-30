@@ -1,51 +1,106 @@
 const conexion = require('../config/database');
 
-function buscarPedidoPendiente(idUsuario, callback) {
-    const query = `SELECT * FROM pedidos
-        WHERE usuario_id = ? AND estado_pedido = 'PENDIENTE'
-        ORDER BY id DESC LIMIT 1`;
-    conexion.query(query, [idUsuario], callback);
-}
-
-function crearPedido(idUsuario, callback) {
-    const query = `INSERT INTO pedidos
-        (usuario_id, subtotal, total, metodo_entrega, metodo_pago)
-        VALUES (?, 0, 0, 'RETIRO_LOCAL', 'EFECTIVO')`;
-    conexion.query(query, [idUsuario], callback);
-}
-
-function obtenerProducto(idProducto, callback) {
-    conexion.query('SELECT * FROM productos WHERE id = ? AND disponible = 1', [idProducto], callback);
-}
-
-function agregarDetalle(idPedido, idProducto, cantidad, precio, callback) {
-    const query = `INSERT INTO detalle_pedido
-        (pedido_id, producto_id, cantidad, precio_unitario, subtotal)
-        VALUES (?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            cantidad = cantidad + VALUES(cantidad),
-            precio_unitario = VALUES(precio_unitario),
-            subtotal = cantidad * precio_unitario`;
-    conexion.query(query, [idPedido, idProducto, cantidad, precio, precio * cantidad], error => {
-        if (error) return callback(error);
-        actualizarTotales(idPedido, callback);
-    });
-}
-
 function agregar(idUsuario, idProducto, cantidad, callback) {
-    obtenerProducto(idProducto, (error, productos) => {
-        if (error) return callback(error);
-        if (!productos.length) return callback(Object.assign(new Error('Producto no disponible'), { status: 404 }));
+    conexion.getConnection((connectionError, connection) => {
+        if (connectionError) return callback(connectionError);
+        let transactionStarted = false;
 
-        buscarPedidoPendiente(idUsuario, (searchError, pedidos) => {
-            if (searchError) return callback(searchError);
-            const usarPedido = pedido => agregarDetalle(pedido.id, idProducto, cantidad, Number(productos[0].precio), callback);
-            if (pedidos.length) return usarPedido(pedidos[0]);
+        const query = (sql, params = []) => new Promise((resolve, reject) => {
+            connection.query(sql, params, (error, result) => error ? reject(error) : resolve(result));
+        });
+        const rollback = async () => {
+            if (transactionStarted) {
+                await new Promise(resolve => connection.rollback(rollbackError => {
+                    if (rollbackError) console.error('No se pudo revertir la transacción del carrito:', rollbackError.message);
+                    resolve();
+                }));
+            }
+        };
 
-            crearPedido(idUsuario, (createError, resultado) => {
-                if (createError) return callback(createError);
-                usarPedido({ id: resultado.insertId });
-            });
+        connection.beginTransaction(beginError => {
+            if (beginError) {
+                connection.release();
+                return callback(beginError);
+            }
+            transactionStarted = true;
+            const execute = async () => {
+                let result;
+                let operationError;
+                try {
+                    const users = await query('SELECT id FROM usuarios WHERE id = ? FOR UPDATE', [idUsuario]);
+                    if (!users.length) throw Object.assign(new Error('Usuario no encontrado'), { status: 404 });
+
+                    const products = await query(
+                        'SELECT id, precio FROM productos WHERE id = ? AND disponible = 1 FOR UPDATE',
+                        [idProducto]
+                    );
+                    if (!products.length) throw Object.assign(new Error('Producto no disponible'), { status: 404 });
+
+                    const orders = await query(
+                        `SELECT id FROM pedidos
+                         WHERE usuario_id = ? AND estado_pedido = 'PENDIENTE'
+                         ORDER BY id DESC LIMIT 1 FOR UPDATE`,
+                        [idUsuario]
+                    );
+                    let idPedido;
+                    if (orders.length) {
+                        idPedido = orders[0].id;
+                    } else {
+                        const createdOrder = await query(
+                            `INSERT INTO pedidos
+                             (usuario_id, subtotal, total, metodo_entrega, metodo_pago)
+                             VALUES (?, 0, 0, 'RETIRO_LOCAL', 'EFECTIVO')`,
+                            [idUsuario]
+                        );
+                        idPedido = createdOrder.insertId;
+                    }
+
+                    const details = await query(
+                        'SELECT id, cantidad FROM detalle_pedido WHERE pedido_id = ? AND producto_id = ? FOR UPDATE',
+                        [idPedido, idProducto]
+                    );
+                    const newQuantity = (details.length ? Number(details[0].cantidad) : 0) + cantidad;
+                    if (newQuantity > 99) {
+                        throw Object.assign(new Error('La cantidad máxima por producto es 99'), { status: 400 });
+                    }
+
+                    let idDetalle;
+                    if (details.length) {
+                        idDetalle = details[0].id;
+                        await query(
+                            `UPDATE detalle_pedido
+                             SET cantidad = ?, precio_unitario = ?, subtotal = ? WHERE id = ?`,
+                            [newQuantity, Number(products[0].precio), Number(products[0].precio) * newQuantity, idDetalle]
+                        );
+                    } else {
+                        const inserted = await query(
+                            `INSERT INTO detalle_pedido
+                             (pedido_id, producto_id, cantidad, precio_unitario, subtotal)
+                             VALUES (?, ?, ?, ?, ?)`,
+                            [idPedido, idProducto, cantidad, Number(products[0].precio), Number(products[0].precio) * cantidad]
+                        );
+                        idDetalle = inserted.insertId;
+                    }
+
+                    await query(
+                        `UPDATE pedidos pe
+                         SET subtotal = (SELECT COALESCE(SUM(d.subtotal), 0) FROM detalle_pedido d WHERE d.pedido_id = pe.id),
+                             total = (SELECT COALESCE(SUM(d.subtotal), 0) FROM detalle_pedido d WHERE d.pedido_id = pe.id) + pe.costo_envio
+                         WHERE pe.id = ? AND pe.estado_pedido = 'PENDIENTE'`,
+                        [idPedido]
+                    );
+                    await new Promise((resolve, reject) => connection.commit(error => error ? reject(error) : resolve()));
+                    transactionStarted = false;
+                    result = { insertId: idDetalle };
+                } catch (error) {
+                    operationError = error;
+                    await rollback();
+                } finally {
+                    connection.release();
+                }
+                callback(operationError, result);
+            };
+            execute();
         });
     });
 }

@@ -4,7 +4,7 @@ function crearPreferencia(req, res) {
     if (!paymentService.estaHabilitado()) {
         return res.status(503).json({ error: 'Los pagos en línea están deshabilitados' });
     }
-    const idPedido = Number(req.body.idPedido);
+    const idPedido = Number(req.body?.idPedido);
     if (!Number.isInteger(idPedido) || idPedido < 1) {
         return res.status(400).json({ error: 'idPedido debe ser un entero válido' });
     }

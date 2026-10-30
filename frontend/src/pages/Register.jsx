@@ -99,7 +99,7 @@ function Register() {
               Apellido
 
               <input
-                type="tel"
+                type="text"
                 name="lastName"
                 value={form.lastName}
                 onChange={handleChange}
@@ -148,6 +148,7 @@ function Register() {
                 onChange={handleChange}
                 placeholder="Contraseña"
                 minLength="8"
+                maxLength="72"
                 required
               />
             </label>

@@ -48,8 +48,8 @@ function actualizarEstadoPedido(req, res) {
     }
 
     adminService.actualizarEstadoPedido(idPedido, estado, (error, resultado) => {
-        if (error) return res.status(500).json({ error: 'No se pudo actualizar el estado del pedido.' });
-        if (!resultado.affectedRows && !resultado.exists) {
+        if (error) return res.status(error.status || 500).json({ error: error.status ? error.message : 'No se pudo actualizar el estado del pedido.' });
+        if (resultado.exists === false) {
             return res.status(404).json({ error: 'No se encontró el pedido.' });
         }
         res.json({ mensaje: 'Estado del pedido actualizado.', estado });

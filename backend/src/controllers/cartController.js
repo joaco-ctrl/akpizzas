@@ -1,9 +1,9 @@
 const cartService = require('../service/cartService');
 
 function agregar(req, res) {
-    const { idProducto, cantidad } = req.body;
-    if (!Number.isInteger(idProducto) || !Number.isInteger(cantidad) || cantidad < 1) {
-        return res.status(400).json({ error: 'idProducto y cantidad deben ser enteros válidos' });
+    const { idProducto, cantidad } = req.body || {};
+    if (!Number.isInteger(idProducto) || idProducto < 1 || !Number.isInteger(cantidad) || cantidad < 1 || cantidad > 99) {
+        return res.status(400).json({ error: 'idProducto y cantidad deben ser enteros válidos (cantidad máxima: 99)' });
     }
     cartService.agregar(req.usuario.id, idProducto, cantidad, (error, resultado) => {
         if (error) return res.status(error.status || 500).json({ error: error.status ? error.message : 'Error al agregar al carrito' });
@@ -19,25 +19,30 @@ function listar(req, res) {
 }
 
 function eliminar(req, res) {
-    cartService.eliminar(req.usuario.id, req.params.idDetalle, error => {
+    const idDetalle = Number(req.params.idDetalle);
+    if (!Number.isInteger(idDetalle) || idDetalle < 1) return res.status(400).json({ error: 'El detalle del pedido no es válido' });
+    cartService.eliminar(req.usuario.id, idDetalle, error => {
         if (error) return res.status(error.status || 500).json({ error: error.status ? error.message : 'Error al eliminar del carrito' });
         res.json({ mensaje: 'Producto eliminado del carrito' });
     });
 }
 
 function modificarCantidad(req, res) {
-    const cantidad = req.body.cantidad;
-    if (!Number.isInteger(cantidad) || cantidad < 1) {
-        return res.status(400).json({ error: 'cantidad debe ser un entero mayor que cero' });
+    const cantidad = req.body?.cantidad;
+    const idDetalle = Number(req.params.idDetalle);
+    if (!Number.isInteger(idDetalle) || idDetalle < 1 || !Number.isInteger(cantidad) || cantidad < 1 || cantidad > 99) {
+        return res.status(400).json({ error: 'El detalle y la cantidad deben ser válidos (cantidad máxima: 99)' });
     }
-    cartService.modificarCantidad(req.usuario.id, req.params.idDetalle, cantidad, error => {
+    cartService.modificarCantidad(req.usuario.id, idDetalle, cantidad, error => {
         if (error) return res.status(error.status || 500).json({ error: error.status ? error.message : 'Error al modificar cantidad' });
         res.json({ mensaje: 'Cantidad modificada correctamente' });
     });
 }
 
 function calcularTotal(req, res) {
-    cartService.calcularTotal(req.usuario.id, req.params.idPedido, (error, resultados) => {
+    const idPedido = Number(req.params.idPedido);
+    if (!Number.isInteger(idPedido) || idPedido < 1) return res.status(400).json({ error: 'El pedido no es válido' });
+    cartService.calcularTotal(req.usuario.id, idPedido, (error, resultados) => {
         if (error) return res.status(500).json({ error: 'Error al calcular el total' });
         if (!resultados.length) return res.status(404).json({ error: 'Pedido no encontrado' });
         res.json({ idPedido: resultados[0].id, total: Number(resultados[0].total) });
@@ -74,16 +79,22 @@ function listarPedidos(req, res) {
 
 
 function actualizarEntrega(req, res) {
-    const { idPedido, metodoEntrega, metodoPago, direccion, costoEnvio = 0 } = req.body;
-    if (!Number.isInteger(Number(idPedido)) || !['DELIVERY', 'RETIRO_LOCAL'].includes(metodoEntrega) ||
-        metodoPago !== 'EFECTIVO' || !Number.isFinite(Number(costoEnvio)) || Number(costoEnvio) < 0) {
+    const { idPedido, metodoEntrega, metodoPago, direccion } = req.body || {};
+    const parsedIdPedido = Number(idPedido);
+    const direccionNormalizada = typeof direccion === 'string' ? direccion.trim() : '';
+    if (!Number.isInteger(parsedIdPedido) || parsedIdPedido < 1 || !['DELIVERY', 'RETIRO_LOCAL'].includes(metodoEntrega) ||
+        metodoPago !== 'EFECTIVO') {
         return res.status(400).json({ error: 'Los datos de entrega o pago no son válidos' });
     }
-    if (metodoEntrega === 'DELIVERY' && !direccion) {
+    if (metodoEntrega === 'DELIVERY' && !direccionNormalizada) {
         return res.status(400).json({ error: 'La dirección es obligatoria para delivery' });
     }
+    if (direccionNormalizada.length > 255) {
+        return res.status(400).json({ error: 'La dirección no puede superar 255 caracteres' });
+    }
 
-    cartService.actualizarEntrega(req.usuario.id, Number(idPedido), metodoEntrega, metodoPago, direccion || null, Number(costoEnvio), (error, resultado) => {
+    cartService.actualizarEntrega(req.usuario.id, parsedIdPedido, metodoEntrega, metodoPago,
+        metodoEntrega === 'DELIVERY' ? direccionNormalizada : null, 0, (error, resultado) => {
         if (error) return res.status(500).json({ error: 'Error al actualizar el método de entrega' });
         if (!resultado.affectedRows) return res.status(404).json({ error: 'Pedido pendiente no encontrado' });
         res.json({ mensaje: 'Datos de entrega actualizados correctamente' });

@@ -38,8 +38,8 @@ function crearCategoria(req, res) {
 function validarProducto(data) {
     if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
     const nombre = typeof data.nombre === 'string' ? data.nombre.trim() : '';
-    const precio = Number(data.precio);
-    const categoriaId = Number(data.categoria_id);
+    const precio = data.precio;
+    const categoriaId = data.categoria_id;
     const descripcionValida = data.descripcion == null || typeof data.descripcion === 'string';
     const imagen = data.imagen_url == null ? '' : String(data.imagen_url).trim();
     const imagenValida = !imagen || imagen.length <= 255 &&
@@ -47,7 +47,8 @@ function validarProducto(data) {
     const disponibleValido = data.disponible === undefined ||
         [0, 1, false, true].includes(data.disponible);
 
-    if (!nombre || nombre.length > 150 || !descripcionValida || !Number.isFinite(precio) || precio <= 0 ||
+    if (!nombre || nombre.length > 150 || !descripcionValida || typeof precio !== 'number' ||
+        !Number.isFinite(precio) || precio <= 0 || precio > 99999999.99 ||
         !Number.isInteger(categoriaId) || categoriaId < 1 || !imagenValida || !disponibleValido) {
         return null;
     }
@@ -65,7 +66,11 @@ function crear(req, res) {
     const producto = validarProducto(req.body);
     if (!producto) return res.status(400).json({ error: 'Los datos del producto no son válidos' });
     productService.crear(producto, (error, resultado) => {
-        if (error) return res.status(400).json({ error: error.message });
+        if (error?.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Ya existe un producto con esos datos.' });
+        if (error?.code === 'ER_NO_REFERENCED_ROW_2' || error?.code === 'ER_WARN_DATA_OUT_OF_RANGE') {
+            return res.status(400).json({ error: 'La categoría o el precio del producto no son válidos.' });
+        }
+        if (error) return res.status(500).json({ error: 'No se pudo crear el producto.' });
         res.status(201).json({ mensaje: 'Producto creado correctamente', id: resultado.insertId });
     });
 }
@@ -77,6 +82,9 @@ function actualizar(req, res) {
         return res.status(400).json({ error: 'Los datos del producto no son válidos' });
     }
     productService.actualizar(id, producto, (error, resultado) => {
+        if (error?.code === 'ER_NO_REFERENCED_ROW_2' || error?.code === 'ER_WARN_DATA_OUT_OF_RANGE') {
+            return res.status(400).json({ error: 'La categoría o el precio del producto no son válidos.' });
+        }
         if (error) return res.status(500).json({ error: 'Error al actualizar el producto' });
         if (!resultado.affectedRows && !resultado.exists) return res.status(404).json({ error: 'Producto no encontrado' });
         res.json({ mensaje: 'Producto actualizado correctamente' });

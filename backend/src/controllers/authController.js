@@ -42,9 +42,9 @@ function register(req, res) {
     if (typeof nombre !== 'string' || !nombre.trim() || nombre.trim().length > 100 ||
         typeof apellido !== 'string' || !apellido.trim() || apellido.trim().length > 100 ||
         !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) || normalizedEmail.length > 150 ||
-        typeof password !== 'string' || password.length < 8 ||
+        typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password, 'utf8') > 72 ||
         !validPhone || !validAddress) {
-        return res.status(400).json({ error: 'Ingresá nombre, apellido, un email válido y una contraseña de al menos 8 caracteres.' });
+        return res.status(400).json({ error: 'Ingresá nombre, apellido, un email válido y una contraseña de entre 8 y 72 bytes.' });
     }
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) {
@@ -70,11 +70,7 @@ function register(req, res) {
 }
 
 function obtenerPerfil(req, res) {
-    loginservice.obtenerPerfil(req.usuario.id, (error, usuarios) => {
-        if (error) return res.status(500).json({ error: 'Error al validar la sesión' });
-        if (!usuarios.length) return res.status(401).json({ error: 'La cuenta ya no está activa' });
-        res.json({ usuario: usuarios[0] });
-    });
+    res.json({ usuario: req.usuario });
 }
 module.exports = {
     login,

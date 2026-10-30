@@ -15,23 +15,46 @@ function listarPedidos(callback) {
     conexion.query(query, callback);
 }
 
-function actualizarEstadoPedido(idPedido, estado, callback) {
-    const query = `UPDATE pedidos SET estado_pedido = ?
-        WHERE id = ? AND estado_pedido <> 'PENDIENTE'`;
-    conexion.query(query, [estado, idPedido], (error, resultado) => {
-        if (error) return callback(error);
-        if (resultado.affectedRows) return callback(null, resultado);
+const transicionesPedido = {
+    EN_PREPARACION: ['LISTO', 'CANCELADO'],
+    LISTO: ['EN_CAMINO', 'ENTREGADO', 'CANCELADO'],
+    EN_CAMINO: ['ENTREGADO', 'CANCELADO'],
+    ENTREGADO: [],
+    CANCELADO: []
+};
 
-        conexion.query(
-            `SELECT id FROM pedidos
-             WHERE id = ? AND estado_pedido <> 'PENDIENTE'
-               AND EXISTS (SELECT 1 FROM detalle_pedido WHERE pedido_id = pedidos.id)`,
-            [idPedido],
-            (lookupError, pedidos) => {
-                if (lookupError) return callback(lookupError);
-                callback(null, { ...resultado, exists: pedidos.length > 0 });
+function actualizarEstadoPedido(idPedido, estado, callback) {
+    const selectQuery = `SELECT estado_pedido, metodo_entrega FROM pedidos
+        WHERE id = ? AND estado_pedido <> 'PENDIENTE'
+          AND EXISTS (SELECT 1 FROM detalle_pedido WHERE pedido_id = pedidos.id)`;
+    conexion.query(selectQuery, [idPedido], (error, pedidos) => {
+        if (error) return callback(error);
+        if (!pedidos.length) return callback(null, { exists: false });
+
+        const pedido = pedidos[0];
+        if (pedido.estado_pedido === estado) return callback(null, { unchanged: true });
+        const allowed = transicionesPedido[pedido.estado_pedido] || [];
+        const entregaLocal = pedido.metodo_entrega === 'RETIRO_LOCAL';
+        const estadoPermitido = allowed.includes(estado) &&
+            !(entregaLocal && estado === 'EN_CAMINO') &&
+            !(!entregaLocal && estado === 'ENTREGADO' && pedido.estado_pedido !== 'EN_CAMINO');
+        if (!estadoPermitido) {
+            const transitionError = new Error('La transición de estado no está permitida.');
+            transitionError.status = 409;
+            return callback(transitionError);
+        }
+
+        const updateQuery = `UPDATE pedidos SET estado_pedido = ?
+            WHERE id = ? AND estado_pedido = ?`;
+        conexion.query(updateQuery, [estado, idPedido, pedido.estado_pedido], (updateError, resultado) => {
+            if (updateError) return callback(updateError);
+            if (!resultado.affectedRows) {
+                const transitionError = new Error('El pedido cambió mientras se actualizaba. Recargá e intentá nuevamente.');
+                transitionError.status = 409;
+                return callback(transitionError);
             }
-        );
+            callback(null, resultado);
+        });
     });
 }
 

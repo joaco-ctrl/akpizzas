@@ -117,6 +117,7 @@ function Cart({
 
                       <button
                         type="button"
+                        disabled={item.quantity >= 99}
                         onClick={() =>
                           onUpdateQuantity?.(
                             item.id,
