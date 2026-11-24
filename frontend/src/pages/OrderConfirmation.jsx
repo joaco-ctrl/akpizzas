@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./OrderConfirmation.css";
 
 function OrderConfirmation() {
+  const { state } = useLocation();
+
   return (
     <main className="confirmation-page">
 
@@ -20,9 +22,9 @@ function OrderConfirmation() {
         </h1>
 
         <p>
-          Recibimos tu pedido correctamente.
-          Pronto nos estaremos comunicando para
-          coordinar los detalles de la entrega.
+          {state?.whatsappOrder
+            ? "El pedido quedó registrado. En WhatsApp, tocá Enviar para compartir el ticket con AK Pizzas."
+            : "Recibimos tu pedido correctamente. Pronto nos estaremos comunicando para coordinar los detalles de la entrega."}
         </p>
 
         <div className="confirmation-info">
@@ -58,6 +60,12 @@ function OrderConfirmation() {
         </div>
 
         <div className="confirmation-actions">
+
+          {state?.whatsappUrl && (
+            <a href={state.whatsappUrl} target="_blank" rel="noreferrer">
+              Reabrir ticket de WhatsApp
+            </a>
+          )}
 
           <Link to="/menu">
             Seguir comprando

@@ -29,6 +29,12 @@
   font-size: 14px;
 }
 
+.admin-orders-heading .admin-orders-auto-refresh {
+  margin-top: 6px;
+  color: #898989;
+  font-size: 11px;
+}
+
 .admin-orders-refresh {
   display: inline-flex;
   align-items: center;

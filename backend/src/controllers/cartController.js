@@ -83,7 +83,7 @@ function actualizarEntrega(req, res) {
     const parsedIdPedido = Number(idPedido);
     const direccionNormalizada = typeof direccion === 'string' ? direccion.trim() : '';
     if (!Number.isInteger(parsedIdPedido) || parsedIdPedido < 1 || !['DELIVERY', 'RETIRO_LOCAL'].includes(metodoEntrega) ||
-        metodoPago !== 'EFECTIVO') {
+        !['EFECTIVO', 'WHATSAPP'].includes(metodoPago)) {
         return res.status(400).json({ error: 'Los datos de entrega o pago no son válidos' });
     }
     if (metodoEntrega === 'DELIVERY' && !direccionNormalizada) {

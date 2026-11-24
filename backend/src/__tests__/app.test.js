@@ -21,4 +21,21 @@ describe('Express app', () => {
         expect(response.status).toBe(404);
         expect(response.body).toEqual({ error: 'Ruta no encontrada' });
     });
+
+    test('expone las categorías para el menú público', async () => {
+        database.query.mockImplementation((sql, callback) => {
+            callback(null, [{ id: 1, nombre: 'Pizzas' }]);
+        });
+        const response = await request(app).get('/product/categorias');
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual([{ id: 1, nombre: 'Pizzas' }]);
+    });
+
+    test('mantiene protegidas las modificaciones de categorías', async () => {
+        const response = await request(app)
+            .post('/product/categorias')
+            .send({ nombre: 'Pizzas' });
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({ error: 'Token requerido' });
+    });
 });

@@ -3,12 +3,38 @@ import { useState } from "react";
 import api, { getApiError } from "../services/api";
 import "./Checkout.css";
 
+const whatsappNumber = "5492281466743";
+const currency = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  maximumFractionDigits: 0,
+});
+
+function createWhatsAppTicket(cartItems, orderId, address, total) {
+  const productLines = cartItems.map((item) =>
+    `• ${item.quantity} × ${item.name}: ${currency.format(item.price * item.quantity)}`
+  );
+  const message = [
+    `Hola AK Pizzas, quiero confirmar el pedido #${orderId}.`,
+    "",
+    "Detalle del pedido:",
+    ...productLines,
+    "",
+    `Total: ${currency.format(total)}`,
+    "Envío: a coordinar",
+    `Dirección: ${address.trim()}`,
+    "Pago: a coordinar por WhatsApp.",
+  ].join("\n");
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
 function Checkout({ cartItems = [], onOrderPlaced }) {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     address: "",
   });
+  const [paymentMethod, setPaymentMethod] = useState("EFECTIVO");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -18,11 +44,7 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
     0
   );
 
-  const formattedTotal = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(subtotal);
+  const formattedTotal = currency.format(subtotal);
 
   const handleChange = (event) => {
     setForm({
@@ -39,19 +61,35 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
       return;
     }
 
+    const whatsappUrl = paymentMethod === "WHATSAPP"
+      ? createWhatsAppTicket(cartItems, idPedido, form.address, subtotal)
+      : null;
+    const whatsappTab = whatsappUrl ? window.open("about:blank", "_blank") : null;
+    if (whatsappTab) whatsappTab.opener = null;
+
     setSubmitting(true);
     setError("");
     try {
       await api.put("/cart/actualizar-entrega", {
         idPedido,
         metodoEntrega: "DELIVERY",
-        metodoPago: "EFECTIVO",
+        metodoPago: paymentMethod,
         direccion: form.address,
       });
 
       await onOrderPlaced?.();
-      navigate("/pedido-confirmado");
+      navigate("/pedido-confirmado", {
+        state: { whatsappOrder: Boolean(whatsappUrl), whatsappUrl },
+      });
+      if (whatsappUrl) {
+        if (whatsappTab && !whatsappTab.closed) {
+          whatsappTab.location.href = whatsappUrl;
+        } else {
+          window.location.assign(whatsappUrl);
+        }
+      }
     } catch (requestError) {
+      if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
       setError(getApiError(requestError, "No se pudo confirmar el pedido."));
     } finally {
       setSubmitting(false);
@@ -97,7 +135,7 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
           </h1>
 
           <p>
-            Indicá la dirección de entrega y pagá en efectivo al recibir.
+            Indicá la dirección de entrega y elegí cómo coordinar el pago.
           </p>
         </div>
 
@@ -144,8 +182,8 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
                     type="radio"
                     name="payment"
                     value="EFECTIVO"
-                    checked
-                    readOnly
+                    checked={paymentMethod === "EFECTIVO"}
+                    onChange={() => setPaymentMethod("EFECTIVO")}
                   />
 
                   <span>
@@ -163,6 +201,23 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
                   </div>
                 </label>
 
+                <label className="payment-option">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="WHATSAPP"
+                    checked={paymentMethod === "WHATSAPP"}
+                    onChange={() => setPaymentMethod("WHATSAPP")}
+                  />
+
+                  <span aria-hidden="true">💬</span>
+
+                  <div>
+                    <strong>Coordinar por WhatsApp</strong>
+                    <small>Abre el ticket para enviarlo a AK Pizzas</small>
+                  </div>
+                </label>
+
               </div>
 
             </section>
@@ -172,7 +227,11 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
               className="place-order-button"
               disabled={submitting}
             >
-              {submitting ? "Procesando..." : "Confirmar pedido"}
+              {submitting
+                ? "Procesando..."
+                : paymentMethod === "WHATSAPP"
+                  ? "Confirmar y abrir WhatsApp"
+                  : "Confirmar pedido"}
             </button>
 
           </form>
@@ -197,20 +256,12 @@ function Checkout({ cartItems = [], onOrderPlaced }) {
                     </strong>
 
                     <span>
-                      {new Intl.NumberFormat("es-AR", {
-                        style: "currency",
-                        currency: "ARS",
-                        maximumFractionDigits: 0,
-                      }).format(item.price)}
+                      {currency.format(item.price)}
                     </span>
                   </div>
 
                   <strong>
-                    {new Intl.NumberFormat("es-AR", {
-                      style: "currency",
-                      currency: "ARS",
-                      maximumFractionDigits: 0,
-                    }).format(item.price * item.quantity)}
+                    {currency.format(item.price * item.quantity)}
                   </strong>
 
                 </div>

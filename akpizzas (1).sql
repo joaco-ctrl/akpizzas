@@ -62,7 +62,7 @@ CREATE TABLE `pedidos` (
   `total` decimal(10,2) NOT NULL,
   `direccion` varchar(255) DEFAULT NULL,
   `metodo_entrega` enum('DELIVERY','RETIRO_LOCAL') NOT NULL,
-  `metodo_pago` enum('MERCADO_PAGO','EFECTIVO') NOT NULL,
+  `metodo_pago` enum('MERCADO_PAGO','EFECTIVO','WHATSAPP') NOT NULL,
   `estado_pedido` enum('PENDIENTE','EN_PREPARACION','LISTO','EN_CAMINO','ENTREGADO','CANCELADO') NOT NULL DEFAULT 'PENDIENTE',
   `estado_pago` enum('PENDIENTE','APROBADO','RECHAZADO','CANCELADO') NOT NULL DEFAULT 'PENDIENTE',
   `mercado_pago_id` varchar(100) DEFAULT NULL,

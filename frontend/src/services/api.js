@@ -26,4 +26,9 @@ export function getApiError(error, fallback) {
   return error.response?.data?.error || fallback;
 }
 
+export function getProductImageUrl(imageUrl) {
+  if (typeof imageUrl !== "string" || !imageUrl.startsWith("/img/")) return imageUrl || "";
+  return new URL(imageUrl, api.defaults.baseURL).toString();
+}
+
 export default api;

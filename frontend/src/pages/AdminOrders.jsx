@@ -39,29 +39,33 @@ function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [refreshIndex, setRefreshIndex] = useState(0);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     let active = true;
-    const loadOrders = () => {
-      api.get("/admin/pedidos")
-        .then(({ data }) => {
-          if (!active) return;
-          setOrders(data);
-          setError("");
-        })
-        .catch((requestError) => {
-          if (active) setError(getApiError(requestError, "No se pudieron cargar los pedidos."));
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
+    let refreshTimer;
+
+    const loadOrders = async () => {
+      try {
+        const { data } = await api.get("/admin/pedidos", { params: { _t: Date.now() } });
+        if (!active) return;
+        setOrders(data);
+        setError("");
+        setLastUpdated(new Date());
+      } catch (requestError) {
+        if (active) setError(getApiError(requestError, "No se pudieron cargar los pedidos."));
+      } finally {
+        if (active) {
+          setLoading(false);
+          refreshTimer = window.setTimeout(loadOrders, 30_000);
+        }
+      }
     };
 
     loadOrders();
-    const refreshTimer = window.setInterval(loadOrders, 30_000);
     return () => {
       active = false;
-      window.clearInterval(refreshTimer);
+      window.clearTimeout(refreshTimer);
     };
   }, [refreshIndex]);
 
@@ -90,6 +94,11 @@ function AdminOrders() {
             <span className="section-label">PANEL DE ADMINISTRACIÓN</span>
             <h1>Pedidos</h1>
             <p>Revisá las compras confirmadas y actualizá su estado de preparación y entrega.</p>
+            <p className="admin-orders-auto-refresh" role="status">
+              {lastUpdated
+                ? `Actualizado automáticamente cada 30 segundos · Última consulta: ${dateTime.format(lastUpdated)}`
+                : "Actualizando pedidos automáticamente cada 30 segundos..."}
+            </p>
           </div>
           <button
             type="button"
@@ -171,7 +180,13 @@ function AdminOrders() {
                     <h3>Entrega y pago</h3>
                     <strong>{order.metodoEntrega === "DELIVERY" ? "Envío a domicilio" : "Retiro en el local"}</strong>
                     {order.direccion && <span>{order.direccion}</span>}
-                    <span>{order.metodoPago === "EFECTIVO" ? "Efectivo · pago al recibir" : order.metodoPago.replaceAll("_", " ")}</span>
+                    <span>
+                      {order.metodoPago === "EFECTIVO"
+                        ? "Efectivo · pago al recibir"
+                        : order.metodoPago === "WHATSAPP"
+                          ? "WhatsApp · pago a coordinar"
+                          : order.metodoPago.replaceAll("_", " ")}
+                    </span>
                     {order.costoEnvio > 0 && <span>Envío: {currency.format(order.costoEnvio)}</span>}
                   </section>
                 </div>

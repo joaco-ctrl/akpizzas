@@ -1,0 +1,28 @@
+.admin-catalog-nav {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 5px;
+  border: 1px solid #e8e3dc;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.admin-catalog-tab {
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: #666;
+  font-size: 13px;
+  font-weight: 800;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.admin-catalog-tab:hover {
+  color: #c62828;
+  background: #fff5f5;
+}
+
+.admin-catalog-tab.is-active {
+  color: #fff;
+  background: #e53935;
+}

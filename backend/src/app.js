@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET debe configurarse antes de iniciar el backend');
 }
@@ -16,6 +16,7 @@ const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json({ limit: '32kb' }));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/health', (req, res) => {
   database.query('SELECT 1', error => {

@@ -11,6 +11,7 @@ package-lock.json
 # Environment files
 .env
 .env.*
+!.env.example
 .env.local
 .env.production
 .env.test
@@ -30,6 +31,7 @@ dist/
 build/
 out/
 public/build/
+public/img/
 
 # IDEs and editors
 .vscode/
@@ -65,6 +67,7 @@ secrets.json
 *.sqlite3
 *.db
 *.sql
+!migrations/*.sql
 
 # Misc
 coverage/

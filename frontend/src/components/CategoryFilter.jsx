@@ -1,7 +1,7 @@
 import "./CategoryFilter.css";
-import categories from "../data/categories";
 
 function CategoryFilter({
+  categories = [],
   selectedCategory = "todos",
   onCategoryChange,
 }) {

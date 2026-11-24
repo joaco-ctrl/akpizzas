@@ -1,4 +1,4 @@
-jest.mock('../config/database', () => ({ getConnection: jest.fn() }));
+jest.mock('../config/database', () => ({ getConnection: jest.fn(), query: jest.fn() }));
 
 const database = require('../config/database');
 const cartService = require('../service/cartService');
@@ -25,7 +25,10 @@ function createConnection({ existingOrder = true, existingQuantity = 0 } = {}) {
 }
 
 describe('agregar al carrito', () => {
-    beforeEach(() => database.getConnection.mockReset());
+    beforeEach(() => {
+        database.getConnection.mockReset();
+        database.query.mockReset();
+    });
 
     test('usa una transacción para crear o actualizar un carrito pendiente', done => {
         const connection = createConnection({ existingOrder: false });
@@ -51,6 +54,20 @@ describe('agregar al carrito', () => {
             expect(connection.rollback).toHaveBeenCalledTimes(1);
             expect(connection.commit).not.toHaveBeenCalled();
             expect(connection.release).toHaveBeenCalledTimes(1);
+            done();
+        });
+    });
+
+    test('moves a WhatsApp order to preparation after registration', done => {
+        database.query.mockImplementation((query, params, callback) => {
+            expect(query).toContain("IF(? IN ('EFECTIVO', 'WHATSAPP'), 'EN_PREPARACION', estado_pedido)");
+            expect(params).toEqual(['DELIVERY', 'Calle 123', 0, 'WHATSAPP', 'WHATSAPP', 0, 7, 3]);
+            callback(null, { affectedRows: 1 });
+        });
+
+        cartService.actualizarEntrega(3, 7, 'DELIVERY', 'WHATSAPP', 'Calle 123', 0, (error, result) => {
+            expect(error).toBeNull();
+            expect(result).toEqual({ affectedRows: 1 });
             done();
         });
     });

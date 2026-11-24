@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import api, { getApiError } from "./services/api";
+import api, { getApiError, getProductImageUrl } from "./services/api";
+import { categoryIdFromName } from "./data/categories";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -15,33 +16,25 @@ import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import MyOrders from "./pages/MyOrders";
 import AdminProducts from "./pages/AdminProducts";
+import AdminCategories from "./pages/AdminCategories";
 import AdminOrders from "./pages/AdminOrders";
 
 function normalizeProduct(product) {
-  const categoryAliases = {
-    "combo hamburguesa + papas + bebida": "combos",
-    "promo pizzas para hornear": "promo-pizzas",
-    "nuggets y aros de cebolla": "nuggets-aros",
-    "papas fritas": "papas",
-    "hamburguesas simples": "simples",
-    "hamburguesas dobles": "dobles",
-    "hamburguesas triples": "triples",
-    "hamburguesas sin papas": "sin-papas",
-    "pizzas para hornear": "pizzas",
-  };
   const categoryName = product.categoria_nombre || "Otros";
-  const normalizedCategory = categoryName.toLocaleLowerCase("es-AR");
   return {
     id: Number(product.id),
     name: product.nombre,
     description: product.descripcion || "",
     price: Number(product.precio),
-    image: product.imagen_url,
+    image: getProductImageUrl(product.imagen_url),
     categoryName,
-    category: categoryAliases[normalizedCategory] || normalizedCategory
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+    category: categoryIdFromName(categoryName),
+    categoryId: Number(product.categoria_id),
   };
+}
+
+function isAdminRole(role) {
+  return typeof role === "string" && role.trim().toLocaleLowerCase("es-AR") === "admin";
 }
 
 function RequireAuth({ user, isLoading, children }) {
@@ -50,7 +43,7 @@ function RequireAuth({ user, isLoading, children }) {
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
-  if (user.rol === "admin") return <Navigate to="/admin/productos" replace />;
+  if (isAdminRole(user.rol)) return <Navigate to="/admin/catalogo/productos" replace />;
   return children;
 }
 
@@ -58,7 +51,7 @@ function RequireAdmin({ user, isLoading, children }) {
   const location = useLocation();
   if (isLoading) return <p className="route-loading">Verificando permisos...</p>;
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
-  if (user.rol !== "admin") return <Navigate to="/" replace />;
+  if (!isAdminRole(user.rol)) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -139,7 +132,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated || user?.rol === "admin") return;
+    if (!isAuthenticated || isAdminRole(user?.rol)) return;
 
     api.get("/cart/carrito")
       .then(({ data }) => {
@@ -167,12 +160,12 @@ function App() {
     const customerRoute = redirectTo && !redirectTo.startsWith("/admin")
       ? redirectTo
       : "/home";
-    navigate(loggedInUser.rol === "admin" ? "/admin/productos" : customerRoute);
+    navigate(isAdminRole(loggedInUser?.rol) ? "/admin/catalogo/productos" : customerRoute);
   };
 
   const handleAddToCart = async (product, quantity = 1) => {
-    if (user?.rol === "admin") {
-      navigate("/admin/productos");
+    if (isAdminRole(user?.rol)) {
+      navigate("/admin/catalogo/productos");
       return;
     }
     if (!isAuthenticated) {
@@ -215,7 +208,7 @@ function App() {
       <Header
         cartCount={cartItems.reduce((total, item) => total + item.quantity, 0)}
         isAuthenticated={isAuthenticated}
-        isAdmin={user?.rol === "admin"}
+        isAdmin={isAdminRole(user?.rol)}
         onLogout={handleLogout}
       />
       {notice && <p className="api-notice" role="status" onClick={() => setNotice("")}>{notice}</p>}
@@ -224,7 +217,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home products={products} onAddToCart={handleAddToCart} />} />
           <Route path="/login" element={isAuthenticated
-            ? <Navigate to={user.rol === "admin" ? "/admin/productos" : "/home"} replace />
+            ? <Navigate to={isAdminRole(user.rol) ? "/admin/catalogo/productos" : "/home"} replace />
             : <Login onLogin={handleLogin} />} />
           <Route path="/registro" element={isAuthenticated
             ? <Navigate to="/" replace />
@@ -252,9 +245,16 @@ function App() {
               <MyOrders />
             </RequireAuth>
           } />
-          <Route path="/admin/productos" element={
+          <Route path="/admin/catalogo" element={<Navigate to="/admin/catalogo/productos" replace />} />
+          <Route path="/admin/productos" element={<Navigate to="/admin/catalogo/productos" replace />} />
+          <Route path="/admin/catalogo/productos" element={
             <RequireAdmin user={user} isLoading={authLoading}>
               <AdminProducts onProductsUpdated={loadProducts} />
+            </RequireAdmin>
+          } />
+          <Route path="/admin/catalogo/categorias" element={
+            <RequireAdmin user={user} isLoading={authLoading}>
+              <AdminCategories />
             </RequireAdmin>
           } />
           <Route path="/admin/pedidos" element={

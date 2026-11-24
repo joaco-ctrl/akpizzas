@@ -181,7 +181,7 @@ function actualizarEntrega(idUsuario, idPedido, metodoEntrega, metodoPago, direc
             direccion = ?,
             costo_envio = ?,
             metodo_pago = ?,
-            estado_pedido = IF(? = 'EFECTIVO', 'EN_PREPARACION', estado_pedido),
+            estado_pedido = IF(? IN ('EFECTIVO', 'WHATSAPP'), 'EN_PREPARACION', estado_pedido),
             total = subtotal + ?
         WHERE id = ? AND usuario_id = ? AND estado_pedido = 'PENDIENTE'
           AND EXISTS (SELECT 1 FROM detalle_pedido WHERE pedido_id = pedidos.id)

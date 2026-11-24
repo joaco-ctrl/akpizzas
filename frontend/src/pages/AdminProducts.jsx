@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import api, { getApiError } from "../services/api";
+import { useEffect, useMemo, useRef, useState } from "react";
+import api, { getApiError, getProductImageUrl } from "../services/api";
+import AdminCatalogNav from "../components/AdminCatalogNav";
 import "./AdminProducts.css";
 
 const emptyForm = {
@@ -21,11 +22,12 @@ function AdminProducts({ onProductsUpdated }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(emptyForm);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const imageInputRef = useRef(null);
   const [search, setSearch] = useState("");
   const [visibility, setVisibility] = useState("all");
-  const [categoryName, setCategoryName] = useState("");
-  const [savingCategory, setSavingCategory] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
@@ -70,6 +72,11 @@ function AdminProducts({ onProductsUpdated }) {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    if (!imagePreview.startsWith("blob:")) return undefined;
+    return () => URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
+
   const filteredProducts = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase("es-AR");
     return products.filter((product) => {
@@ -86,7 +93,10 @@ function AdminProducts({ onProductsUpdated }) {
 
   const resetForm = () => {
     setForm(emptyForm);
+    setImageFile(null);
+    setImagePreview("");
     setEditingId(null);
+    if (imageInputRef.current) imageInputRef.current.value = "";
     setError("");
     setSuccess("");
   };
@@ -100,6 +110,9 @@ function AdminProducts({ onProductsUpdated }) {
       categoria_id: String(product.categoria_id),
       disponible: Number(product.disponible),
     });
+    setImageFile(null);
+    setImagePreview(getProductImageUrl(product.imagen_url));
+    if (imageInputRef.current) imageInputRef.current.value = "";
     setEditingId(Number(product.id));
     setError("");
     setSuccess("");
@@ -107,7 +120,17 @@ function AdminProducts({ onProductsUpdated }) {
   };
 
   const handleChange = (event) => {
-    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+    if (name === "imagen_url" && !imageFile) {
+      setImagePreview(getProductImageUrl(value));
+    }
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : getProductImageUrl(form.imagen_url));
   };
 
   const handleSubmit = async (event) => {
@@ -115,12 +138,15 @@ function AdminProducts({ onProductsUpdated }) {
     setSaving(true);
     setError("");
     setSuccess("");
-    const productData = {
+    const productFields = {
       ...form,
       nombre: form.nombre.trim(),
       precio: Number(form.precio),
       categoria_id: Number(form.categoria_id),
     };
+    const productData = new FormData();
+    Object.entries(productFields).forEach(([name, value]) => productData.append(name, String(value)));
+    if (imageFile) productData.append("imagen", imageFile);
 
     try {
       const wasEditing = Boolean(editingId);
@@ -129,8 +155,7 @@ function AdminProducts({ onProductsUpdated }) {
       } else {
         await api.post("/product/productos", productData);
       }
-      setForm(emptyForm);
-      setEditingId(null);
+      resetForm();
       if (await loadData()) {
         setSuccess(wasEditing ? "Producto actualizado correctamente." : "Producto agregado correctamente.");
       }
@@ -139,22 +164,6 @@ function AdminProducts({ onProductsUpdated }) {
       setError(getApiError(requestError, "No se pudo guardar el producto."));
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleCreateCategory = async (event) => {
-    event.preventDefault();
-    setSavingCategory(true);
-    setError("");
-    setSuccess("");
-    try {
-      await api.post("/product/categorias", { nombre: categoryName.trim() });
-      setCategoryName("");
-      if (await loadData()) setSuccess("Categoría creada correctamente.");
-    } catch (requestError) {
-      setError(getApiError(requestError, "No se pudo crear la categoría."));
-    } finally {
-      setSavingCategory(false);
     }
   };
 
@@ -190,6 +199,8 @@ function AdminProducts({ onProductsUpdated }) {
           </div>
           <span className="admin-heading-icon" aria-hidden="true">🍕</span>
         </header>
+
+        <AdminCatalogNav />
 
         <section className="admin-stats" aria-label="Resumen del catálogo">
           <article className="admin-stat">
@@ -249,12 +260,23 @@ function AdminProducts({ onProductsUpdated }) {
             </label>
 
             <label className="admin-field">
-              URL de imagen <span className="admin-optional">(opcional)</span>
-              <input name="imagen_url" type="url" maxLength="255" value={form.imagen_url} onChange={handleChange} placeholder="https://..." />
+              Archivo de imagen <span className="admin-optional">(opcional · JPG, PNG, GIF o WEBP · máx. 5 MB)</span>
+              <input
+                ref={imageInputRef}
+                name="imagen"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,.jpeg,.jpg,.png,.gif,.webp"
+                onChange={handleImageChange}
+              />
             </label>
 
-            {form.imagen_url && (
-              <img className="admin-image-preview" src={form.imagen_url} alt={`Vista previa de ${form.nombre || "producto"}`} />
+            <label className="admin-field">
+              URL de imagen <span className="admin-optional">(alternativa)</span>
+              <input name="imagen_url" type="text" maxLength="255" value={form.imagen_url} onChange={handleChange} placeholder="https://..." />
+            </label>
+
+            {imagePreview && (
+              <img className="admin-image-preview" src={imagePreview} alt={`Vista previa de ${form.nombre || "producto"}`} />
             )}
 
             <label className="admin-field">
@@ -300,7 +322,7 @@ function AdminProducts({ onProductsUpdated }) {
                     <article className="admin-product-row" key={product.id}>
                       <div className="admin-product-image">
                         {product.imagen_url
-                          ? <img src={product.imagen_url} alt="" />
+                          ? <img src={getProductImageUrl(product.imagen_url)} alt="" />
                           : <span aria-hidden="true">🍔</span>}
                       </div>
                       <div className="admin-product-info">
@@ -331,35 +353,6 @@ function AdminProducts({ onProductsUpdated }) {
           </section>
         </section>
 
-        <section className="admin-categories-card">
-          <div className="admin-card-heading">
-            <div>
-              <span className="section-label">ORGANIZÁ EL MENÚ</span>
-              <h2>Categorías</h2>
-            </div>
-            <span className="admin-result-count">{categories.length} categorías</span>
-          </div>
-          <form className="admin-category-form" onSubmit={handleCreateCategory}>
-            <label className="admin-field">
-              Nueva categoría
-              <input
-                value={categoryName}
-                onChange={(event) => setCategoryName(event.target.value)}
-                maxLength="100"
-                placeholder="Ej.: Pizzas especiales"
-                required
-              />
-            </label>
-            <button className="admin-submit-button" type="submit" disabled={savingCategory}>
-              {savingCategory ? "Guardando..." : "Crear categoría"}
-            </button>
-          </form>
-          <div className="admin-category-list">
-            {categories.map((category) => (
-              <span className="admin-category-chip" key={category.id}>{category.nombre}</span>
-            ))}
-          </div>
-        </section>
       </div>
     </main>
   );

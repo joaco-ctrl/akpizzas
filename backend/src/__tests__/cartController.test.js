@@ -35,7 +35,7 @@ describe('actualizarEntrega controller', () => {
         expect(res.json).toHaveBeenCalledWith({ mensaje: 'Datos de entrega actualizados correctamente' });
     });
 
-    test('rechaza métodos de pago que no sean efectivo', () => {
+    test('rechaza métodos de pago no admitidos', () => {
         const res = response();
         actualizarEntrega({
             usuario: { id: 3 },
@@ -43,6 +43,26 @@ describe('actualizarEntrega controller', () => {
         }, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(cartService.actualizarEntrega).not.toHaveBeenCalled();
+    });
+
+    test('acepta coordinación de pago por WhatsApp', () => {
+        cartService.actualizarEntrega.mockImplementation((idUsuario, idPedido, entrega, pago, direccion, costo, callback) => {
+            callback(null, { affectedRows: 1 });
+        });
+        const res = response();
+        actualizarEntrega({
+            usuario: { id: 3 },
+            body: {
+                idPedido: 7,
+                metodoEntrega: 'DELIVERY',
+                metodoPago: 'WHATSAPP',
+                direccion: 'Calle 123'
+            }
+        }, res);
+
+        expect(cartService.actualizarEntrega.mock.calls[0].slice(0, 6))
+            .toEqual([3, 7, 'DELIVERY', 'WHATSAPP', 'Calle 123', 0]);
+        expect(res.json).toHaveBeenCalledWith({ mensaje: 'Datos de entrega actualizados correctamente' });
     });
 
     test('rechaza direcciones que superan el límite de la base de datos', () => {

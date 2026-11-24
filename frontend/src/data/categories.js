@@ -1,18 +1,21 @@
-const categories = [
-  { id: "todos", name: "Todos" },
-  { id: "combos", name: "Combo Hamburguesa + Papas + Bebida" },
-  { id: "promo-pizzas", name: "Promo Pizzas para Hornear" },
-  { id: "veggie", name: "Veggie" },
-  { id: "nuggets-aros", name: "Nuggets y Aros de Cebolla" },
-  { id: "gaseosas", name: "Gaseosas" },
-  { id: "papas", name: "Papas Fritas" },
-  { id: "simples", name: "Hamburguesas Simples" },
-  { id: "dobles", name: "Hamburguesas Dobles" },
-  { id: "triples", name: "Hamburguesas Triples" },
-  { id: "sin-papas", name: "Hamburguesas Sin Papas" },
-  { id: "lomos", name: "Lomos" },
-  { id: "milanesas", name: "Milanesas" },
-  { id: "pizzas", name: "Pizzas para Hornear" },
-];
+const categoryAliases = {
+  "combo hamburguesa + papas + bebida": "combos",
+  "promo pizzas para hornear": "promo-pizzas",
+  "nuggets y aros de cebolla": "nuggets-aros",
+  "papas fritas": "papas",
+  "hamburguesas simples": "simples",
+  "hamburguesas dobles": "dobles",
+  "hamburguesas triples": "triples",
+  "hamburguesas sin papas": "sin-papas",
+  "pizzas para hornear": "pizzas",
+};
 
-export default categories;
+export function categoryIdFromName(name) {
+  const normalizedName = typeof name === "string"
+    ? name.trim().toLocaleLowerCase("es-AR")
+    : "";
+
+  return categoryAliases[normalizedName] || normalizedName
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}

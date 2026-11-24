@@ -3,6 +3,15 @@ import { Link } from "react-router-dom";
 import api, { getApiError } from "../services/api";
 import "./MyOrders.css";
 
+const orderStateLabels = {
+  PENDIENTE: "Pendiente",
+  EN_PREPARACION: "En preparación",
+  LISTO: "Listo",
+  EN_CAMINO: "En camino",
+  ENTREGADO: "Entregado",
+  CANCELADO: "Cancelado",
+};
+
 function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
@@ -59,8 +68,8 @@ function MyOrders() {
                   </h2>
                 </div>
 
-                <span className="order-status">
-                  {order.estadoPedido.replaceAll("_", " ")}
+                <span className={`order-status status-${order.estadoPedido.toLowerCase()}`}>
+                  {orderStateLabels[order.estadoPedido] || order.estadoPedido.replaceAll("_", " ")}
                 </span>
 
               </div>

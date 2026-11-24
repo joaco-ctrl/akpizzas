@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import CategoryFilter from "../components/CategoryFilter";
-import categories from "../data/categories";
+import api, { getApiError } from "../services/api";
+import { categoryIdFromName } from "../data/categories";
 import "./Menu.css";
 
 const legacyProducts = [
@@ -836,31 +837,56 @@ const legacyProducts = [
 
 function Menu({ products = legacyProducts, onAddToCart, catalogError = "" }) {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const initialCategory = searchParams.get("category") || "todos";
-
-  const [selectedCategory, setSelectedCategory] =
-    useState(initialCategory);
-
+  const [categories, setCategories] = useState([{ id: "todos", name: "Todos" }]);
+  const [categoriesError, setCategoriesError] = useState("");
   const [search, setSearch] = useState("");
+  const queryCategory = searchParams.get("category") || "todos";
+  const selectedCategoryData = categories.find(
+    (category) => category.id === queryCategory || category.slug === queryCategory
+  );
+  const selectedCategory = selectedCategoryData?.id || queryCategory;
+
+  useEffect(() => {
+    let active = true;
+    api.get("/product/categorias")
+      .then(({ data }) => {
+        if (!active) return;
+        setCategories([
+          { id: "todos", name: "Todos" },
+          ...data.map((category) => ({
+            id: String(category.id),
+            name: category.nombre,
+            slug: categoryIdFromName(category.nombre),
+          })),
+        ]);
+        setCategoriesError("");
+      })
+      .catch((error) => {
+        if (active) setCategoriesError(getApiError(error, "No se pudieron cargar las categorías."));
+      });
+    return () => { active = false; };
+  }, []);
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-
+    const nextSearchParams = new URLSearchParams(searchParams);
     if (category === "todos") {
-      searchParams.delete("category");
+      nextSearchParams.delete("category");
     } else {
-      searchParams.set("category", category);
+      nextSearchParams.set("category", category);
     }
-
-    setSearchParams(searchParams);
+    setSearchParams(nextSearchParams);
   };
 
   const filteredProducts = useMemo(() => {
+    const selectedCategoryData = categories.find(
+      (category) => category.id === selectedCategory || category.slug === selectedCategory
+    );
     return products.filter((product) => {
       const matchesCategory =
         selectedCategory === "todos" ||
-        product.category === selectedCategory;
+        (product.categoryId != null
+          ? String(product.categoryId) === (selectedCategoryData?.id || selectedCategory)
+          : product.category === selectedCategoryData?.slug);
 
       const searchText = search.toLowerCase().trim();
 
@@ -871,10 +897,10 @@ function Menu({ products = legacyProducts, onAddToCart, catalogError = "" }) {
 
       return matchesCategory && matchesSearch;
     });
-  }, [products, selectedCategory, search]);
+  }, [categories, products, selectedCategory, search]);
 
   const currentCategory = categories.find(
-    (category) => category.id === selectedCategory
+    (category) => category.id === selectedCategory || category.slug === selectedCategory
   );
 
   return (
@@ -895,6 +921,7 @@ function Menu({ products = legacyProducts, onAddToCart, catalogError = "" }) {
             Elegí tus favoritos y armá tu pedido.
           </p>
           {catalogError && <p role="alert">{catalogError}</p>}
+          {categoriesError && <p role="alert">{categoriesError}</p>}
 
         </div>
       </section>
@@ -932,6 +959,7 @@ function Menu({ products = legacyProducts, onAddToCart, catalogError = "" }) {
           {/* CATEGORÍAS */}
 
           <CategoryFilter
+            categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
           />

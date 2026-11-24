@@ -38,8 +38,8 @@ function Header({ cartCount = 0, isAuthenticated = false, isAdmin = false, onLog
               <Link to="/admin/pedidos" className="nav-link nav-highlight">
                 Pedidos
               </Link>
-              <Link to="/admin/productos" className="nav-link nav-highlight">
-                Productos
+              <Link to="/admin/catalogo/productos" className="nav-link nav-highlight nav-admin-catalog">
+                Catálogo
               </Link>
             </>
           )}
@@ -58,7 +58,7 @@ function Header({ cartCount = 0, isAuthenticated = false, isAdmin = false, onLog
         <div className="header-actions">
 
           <Link
-            to={isAdmin ? "/admin/productos" : isAuthenticated ? "/mis-pedidos" : "/login"}
+            to={isAdmin ? "/admin/catalogo/productos" : isAuthenticated ? "/mis-pedidos" : "/login"}
             className="account-button"
             title={isAdmin ? "Administración" : "Mi cuenta"}
           >

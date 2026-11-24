@@ -66,10 +66,30 @@
 .order-status {
   padding: 7px 10px;
   border-radius: 20px;
-  color: #2e7d32;
-  background: #edf7ed;
   font-size: 10px;
   font-weight: 800;
+}
+
+.status-pendiente,
+.status-en_preparacion {
+  color: #895b0a;
+  background: #fff4df;
+}
+
+.status-listo,
+.status-entregado {
+  color: #207445;
+  background: #e9f7ed;
+}
+
+.status-en_camino {
+  color: #255d9b;
+  background: #edf4ff;
+}
+
+.status-cancelado {
+  color: #aa2d28;
+  background: #fff0ef;
 }
 
 .order-body {

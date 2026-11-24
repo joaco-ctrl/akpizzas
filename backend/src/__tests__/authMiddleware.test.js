@@ -45,4 +45,15 @@ describe('auth middleware', () => {
         expect(res.status).toHaveBeenCalledWith(403);
         expect(next).not.toHaveBeenCalled();
     });
+
+    test('reconoce el rango admin sin distinguir mayúsculas ni espacios', () => {
+        const req = { usuario: { rol: ' ADMIN ' } };
+        const res = response();
+        const next = jest.fn();
+
+        verificarAdmin(req, res, next);
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(res.status).not.toHaveBeenCalled();
+    });
 });

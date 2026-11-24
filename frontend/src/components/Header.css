@@ -222,6 +222,10 @@
     display: none;
   }
 
+  .nav-admin-catalog {
+    display: block;
+  }
+
   .account-button,
   .cart-button {
     width: 36px;

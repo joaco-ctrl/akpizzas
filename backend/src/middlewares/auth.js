@@ -31,7 +31,7 @@ function verificarToken(req, res, next) {
 }
 
 function verificarAdmin(req, res, next) {
-    if (req.usuario.rol !== 'admin') {
+    if (typeof req.usuario?.rol !== 'string' || req.usuario.rol.trim().toLowerCase() !== 'admin') {
         return res.status(403).json({ error: 'Acceso denegado' });
     }
     next();
