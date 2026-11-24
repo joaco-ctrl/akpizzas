@@ -11,10 +11,13 @@ import Menu from "./pages/Menu";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Login from "./pages/Loginn";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Register from "./pages/Register";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import MyOrders from "./pages/MyOrders";
+import Profile from "./pages/Profile";
 import AdminProducts from "./pages/AdminProducts";
 import AdminCategories from "./pages/AdminCategories";
 import AdminOrders from "./pages/AdminOrders";
@@ -209,20 +212,21 @@ function App() {
         cartCount={cartItems.reduce((total, item) => total + item.quantity, 0)}
         isAuthenticated={isAuthenticated}
         isAdmin={isAdminRole(user?.rol)}
-        onLogout={handleLogout}
       />
       {notice && <p className="api-notice" role="status" onClick={() => setNotice("")}>{notice}</p>}
 
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Home products={products} onAddToCart={handleAddToCart} />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={isAuthenticated
             ? <Navigate to={isAdminRole(user.rol) ? "/admin/catalogo/productos" : "/home"} replace />
             : <Login onLogin={handleLogin} />} />
+          <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
+          <Route path="/restablecer-contrasena" element={<ResetPassword />} />
           <Route path="/registro" element={isAuthenticated
             ? <Navigate to="/" replace />
             : <Register />} />
-          <Route path="/home" element={<Home products={products} onAddToCart={handleAddToCart} />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/menu" element={<Menu products={products} onAddToCart={handleAddToCart} catalogError={catalogError} />} />
           <Route path="/producto/:id" element={<ProductDetail products={products} onAddToCart={handleAddToCart} />} />
           <Route path="/carrito" element={
@@ -244,6 +248,13 @@ function App() {
             <RequireAuth user={user} isLoading={authLoading}>
               <MyOrders />
             </RequireAuth>
+          } />
+          <Route path="/perfil" element={
+            authLoading
+              ? <p className="route-loading">Verificando sesión...</p>
+              : user
+                ? <Profile user={user} onLogout={handleLogout} />
+                : <Navigate to="/login" replace />
           } />
           <Route path="/admin/catalogo" element={<Navigate to="/admin/catalogo/productos" replace />} />
           <Route path="/admin/productos" element={<Navigate to="/admin/catalogo/productos" replace />} />

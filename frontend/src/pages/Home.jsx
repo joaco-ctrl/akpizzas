@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
-import ProductCard from "../components/ProductCard";
 import "./Home.css";
 
 
-function Home({ products = [], onAddToCart }) {
-  const featuredProducts = products.slice(0, 6);
-
+function Home() {
   return (
     <main className="home">
 
@@ -136,55 +133,6 @@ function Home({ products = [], onAddToCart }) {
               <h3>Veggie</h3>
               <p>Opciones vegetarianas y veganas</p>
             </Link>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      {/* ================= DESTACADOS ================= */}
-
-      <section className="home-featured">
-
-        <div className="home-container">
-
-          <div className="section-heading featured-heading">
-
-            <div>
-
-              <span className="section-label">
-                FAVORITOS
-              </span>
-
-              <h2>
-                Algunos favoritos
-              </h2>
-
-            </div>
-
-            <Link
-              to="/menu"
-              className="view-all-link"
-            >
-              Ver todo →
-            </Link>
-
-          </div>
-
-
-          <div className="featured-grid">
-
-            {featuredProducts.map((product) => (
-
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-              />
-
-            ))}
 
           </div>
 

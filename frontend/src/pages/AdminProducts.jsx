@@ -25,7 +25,10 @@ function AdminProducts({ onProductsUpdated }) {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
   const imageInputRef = useRef(null);
+  const productNameRef = useRef(null);
+  const formDialogRef = useRef(null);
   const [search, setSearch] = useState("");
   const [visibility, setVisibility] = useState("all");
   const [error, setError] = useState("");
@@ -77,6 +80,17 @@ function AdminProducts({ onProductsUpdated }) {
     return () => URL.revokeObjectURL(imagePreview);
   }, [imagePreview]);
 
+  useEffect(() => {
+    const dialog = formDialogRef.current;
+    if (!dialog) return;
+    if (formOpen && !dialog.open) {
+      dialog.showModal();
+      productNameRef.current?.focus();
+    } else if (!formOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [formOpen]);
+
   const filteredProducts = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase("es-AR");
     return products.filter((product) => {
@@ -96,6 +110,7 @@ function AdminProducts({ onProductsUpdated }) {
     setImageFile(null);
     setImagePreview("");
     setEditingId(null);
+    setFormOpen(false);
     if (imageInputRef.current) imageInputRef.current.value = "";
     setError("");
     setSuccess("");
@@ -114,17 +129,19 @@ function AdminProducts({ onProductsUpdated }) {
     setImagePreview(getProductImageUrl(product.imagen_url));
     if (imageInputRef.current) imageInputRef.current.value = "";
     setEditingId(Number(product.id));
+    setFormOpen(true);
     setError("");
     setSuccess("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const openNewProductForm = () => {
+    resetForm();
+    setFormOpen(true);
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
-    if (name === "imagen_url" && !imageFile) {
-      setImagePreview(getProductImageUrl(value));
-    }
   };
 
   const handleImageChange = (event) => {
@@ -222,23 +239,97 @@ function AdminProducts({ onProductsUpdated }) {
           {success && <p className="admin-message admin-success" role="status">{success}</p>}
         </div>
 
-        <section className="admin-layout">
+        <section className="admin-products-card">
+          <div className="admin-card-heading">
+            <div>
+              <span className="section-label">CATÁLOGO</span>
+              <h2>Administrar productos</h2>
+            </div>
+            <span className="admin-result-count">{filteredProducts.length} resultados</span>
+          </div>
+
+          <div className="admin-product-filters">
+            <label className="admin-search">
+              <span aria-hidden="true">⌕</span>
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar producto o categoría" aria-label="Buscar producto o categoría" />
+            </label>
+            <select value={visibility} onChange={(event) => setVisibility(event.target.value)} aria-label="Filtrar disponibilidad">
+              <option value="all">Todos</option>
+              <option value="active">Disponibles</option>
+              <option value="inactive">Desactivados</option>
+            </select>
+          </div>
+
+          {loading ? (
+            <p className="admin-empty-state">Cargando catálogo...</p>
+          ) : filteredProducts.length === 0 ? (
+            <p className="admin-empty-state">No hay productos que coincidan con la búsqueda.</p>
+          ) : (
+            <div className="admin-product-list">
+              {filteredProducts.map((product) => {
+                const available = Number(product.disponible) === 1;
+                return (
+                  <article className="admin-product-row" key={product.id}>
+                    <div className="admin-product-image">
+                      {product.imagen_url
+                        ? <img src={getProductImageUrl(product.imagen_url)} alt="" />
+                        : <span aria-hidden="true">🍔</span>}
+                    </div>
+                    <div className="admin-product-info">
+                      <div className="admin-product-title">
+                        <h3>{product.nombre}</h3>
+                        <span className={`admin-status ${available ? "is-available" : "is-unavailable"}`}>
+                          {available ? "Disponible" : "Desactivado"}
+                        </span>
+                      </div>
+                      <span>{product.categoria_nombre}</span>
+                      <strong>{currency.format(Number(product.precio))}</strong>
+                    </div>
+                    <div className="admin-product-actions">
+                      <button type="button" onClick={() => editProduct(product)}>Editar</button>
+                      <button
+                        type="button"
+                        className={available ? "admin-danger-button" : "admin-reactivate-button"}
+                        onClick={() => setAvailability(product, !available)}
+                      >
+                        {available ? "Desactivar" : "Reactivar"}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <dialog
+          ref={formDialogRef}
+          className="admin-form-dialog"
+          aria-labelledby="admin-product-form-title"
+          onCancel={(event) => {
+            event.preventDefault();
+            resetForm();
+          }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) resetForm();
+          }}
+        >
           <form className="admin-form-card" onSubmit={handleSubmit}>
             <div className="admin-card-heading">
               <div>
                 <span className="section-label">{editingId ? "EDITAR CATÁLOGO" : "NUEVO EN EL MENÚ"}</span>
-                <h2>{editingId ? "Editar producto" : "Agregar producto"}</h2>
+                <h2 id="admin-product-form-title">{editingId ? "Editar producto" : "Agregar producto"}</h2>
               </div>
-              {editingId && (
-                <button type="button" className="admin-cancel-button" onClick={resetForm}>
-                  Cancelar
-                </button>
-              )}
+              <button type="button" className="admin-cancel-button" onClick={resetForm}>
+                {editingId ? "Cancelar" : "Cerrar"}
+              </button>
             </div>
+
+            {error && <p className="admin-message admin-error" role="alert">{error}</p>}
 
             <label className="admin-field">
               Nombre del producto
-              <input name="nombre" value={form.nombre} onChange={handleChange} maxLength="150" required />
+              <input ref={productNameRef} name="nombre" value={form.nombre} onChange={handleChange} maxLength="150" required />
             </label>
 
             <label className="admin-field">
@@ -270,11 +361,6 @@ function AdminProducts({ onProductsUpdated }) {
               />
             </label>
 
-            <label className="admin-field">
-              URL de imagen <span className="admin-optional">(alternativa)</span>
-              <input name="imagen_url" type="text" maxLength="255" value={form.imagen_url} onChange={handleChange} placeholder="https://..." />
-            </label>
-
             {imagePreview && (
               <img className="admin-image-preview" src={imagePreview} alt={`Vista previa de ${form.nombre || "producto"}`} />
             )}
@@ -289,69 +375,12 @@ function AdminProducts({ onProductsUpdated }) {
             </button>
           </form>
 
-          <section className="admin-products-card">
-            <div className="admin-card-heading">
-              <div>
-                <span className="section-label">CATÁLOGO</span>
-                <h2>Administrar productos</h2>
-              </div>
-              <span className="admin-result-count">{filteredProducts.length} resultados</span>
-            </div>
+        </dialog>
 
-            <div className="admin-product-filters">
-              <label className="admin-search">
-                <span aria-hidden="true">⌕</span>
-                <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar producto o categoría" aria-label="Buscar producto o categoría" />
-              </label>
-              <select value={visibility} onChange={(event) => setVisibility(event.target.value)} aria-label="Filtrar disponibilidad">
-                <option value="all">Todos</option>
-                <option value="active">Disponibles</option>
-                <option value="inactive">Desactivados</option>
-              </select>
-            </div>
-
-            {loading ? (
-              <p className="admin-empty-state">Cargando catálogo...</p>
-            ) : filteredProducts.length === 0 ? (
-              <p className="admin-empty-state">No hay productos que coincidan con la búsqueda.</p>
-            ) : (
-              <div className="admin-product-list">
-                {filteredProducts.map((product) => {
-                  const available = Number(product.disponible) === 1;
-                  return (
-                    <article className="admin-product-row" key={product.id}>
-                      <div className="admin-product-image">
-                        {product.imagen_url
-                          ? <img src={getProductImageUrl(product.imagen_url)} alt="" />
-                          : <span aria-hidden="true">🍔</span>}
-                      </div>
-                      <div className="admin-product-info">
-                        <div className="admin-product-title">
-                          <h3>{product.nombre}</h3>
-                          <span className={`admin-status ${available ? "is-available" : "is-unavailable"}`}>
-                            {available ? "Disponible" : "Desactivado"}
-                          </span>
-                        </div>
-                        <span>{product.categoria_nombre}</span>
-                        <strong>{currency.format(Number(product.precio))}</strong>
-                      </div>
-                      <div className="admin-product-actions">
-                        <button type="button" onClick={() => editProduct(product)}>Editar</button>
-                        <button
-                          type="button"
-                          className={available ? "admin-danger-button" : "admin-reactivate-button"}
-                          onClick={() => setAvailability(product, !available)}
-                        >
-                          {available ? "Desactivar" : "Reactivar"}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        </section>
+        <button type="button" className="admin-create-floating" onClick={openNewProductForm}>
+          <span aria-hidden="true">+</span>
+          Nuevo producto
+        </button>
 
       </div>
     </main>

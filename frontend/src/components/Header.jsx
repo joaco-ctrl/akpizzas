@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./Header.css";
 
-function Header({ cartCount = 0, isAuthenticated = false, isAdmin = false, onLogout }) {
+function Header({ cartCount = 0, isAuthenticated = false, isAdmin = false }) {
   return (
     <header className="header">
       <div className="header-container">
@@ -58,18 +58,13 @@ function Header({ cartCount = 0, isAuthenticated = false, isAdmin = false, onLog
         <div className="header-actions">
 
           <Link
-            to={isAdmin ? "/admin/catalogo/productos" : isAuthenticated ? "/mis-pedidos" : "/login"}
+            to={isAuthenticated ? "/perfil" : "/login"}
             className="account-button"
-            title={isAdmin ? "Administración" : "Mi cuenta"}
+            title="Mi perfil"
+            aria-label="Mi perfil"
           >
             <span className="account-icon">👤</span>
           </Link>
-
-          {isAuthenticated && (
-            <button type="button" className="account-button" onClick={onLogout} title="Cerrar sesión">
-              Salir
-            </button>
-          )}
 
           <Link
             to="/carrito"

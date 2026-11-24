@@ -111,12 +111,9 @@ function Login({ onLogin }) {
                 <span>Recordarme</span>
               </label>
 
-              <button
-                type="button"
-                className="forgot-password"
-              >
+              <Link to="/recuperar-contrasena" className="forgot-password">
                 ¿Olvidaste tu contraseña?
-              </button>
+              </Link>
             </div>
 
             <button

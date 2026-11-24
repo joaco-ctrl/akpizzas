@@ -138,9 +138,31 @@
   padding: 0;
   color: #e53935;
   background: none;
-  cursor: pointer;
   font-family: inherit;
   font-size: 11px;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.auth-message {
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.auth-error {
+  color: #a51e1a;
+  background: #fff0ef;
+}
+
+.auth-success {
+  color: #176a38;
+  background: #eaf8ee;
 }
 
 .auth-submit {

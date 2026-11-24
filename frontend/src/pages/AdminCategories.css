@@ -1,3 +1,120 @@
 .admin-categories-page .admin-categories-card {
   margin-top: 0;
 }
+
+.admin-category-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 620px;
+  margin: 18px 0;
+}
+
+.admin-category-toolbar .admin-search {
+  flex: 1;
+  min-height: 43px;
+}
+
+.admin-categories-page .admin-category-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.admin-category-tile {
+  display: flex;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e8e3dc;
+  border-radius: 13px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.admin-category-tile:hover {
+  transform: translateY(-2px);
+  border-color: #efb4b1;
+  box-shadow: 0 8px 20px #1717170d;
+}
+
+.admin-category-tile .admin-category-chip {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  color: #222;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.admin-category-tile-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.admin-category-tile-actions button {
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 6px;
+  border: 1px solid #e1ddd7;
+  border-radius: 7px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.admin-category-tile-actions button:hover {
+  border-color: #e53935;
+  color: #c62828;
+}
+
+.admin-category-tile-actions .admin-danger-button {
+  border-color: #f1d6d4;
+  color: #b8322c;
+  background: #fff7f6;
+}
+
+.admin-category-tile-actions .admin-danger-button:hover {
+  border-color: #e53935;
+  background: #fff0ef;
+}
+
+.admin-category-tile-actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+@media (max-width: 620px) {
+  .admin-category-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-categories-page .admin-category-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .admin-category-tile {
+    padding: 12px;
+  }
+
+  .admin-category-tile .admin-category-chip {
+    font-size: 13px;
+  }
+
+  .admin-category-tile-actions {
+    gap: 5px;
+  }
+}

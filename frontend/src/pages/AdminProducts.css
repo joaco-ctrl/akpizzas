@@ -96,13 +96,6 @@
   background: #eaf8ee;
 }
 
-.admin-layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 350px) minmax(0, 1fr);
-  align-items: start;
-  gap: 18px;
-}
-
 .admin-form-card,
 .admin-products-card,
 .admin-categories-card {
@@ -135,23 +128,6 @@
   gap: 8px;
 }
 
-.admin-category-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 8px;
-  margin-top: 18px;
-}
-
-.admin-category-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid #efede9;
-  border-radius: 9px;
-}
-
 .admin-category-chip {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -160,9 +136,82 @@
   font-weight: 700;
 }
 
-.admin-form-card {
+.admin-form-dialog {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(520px, 100%);
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 0;
+  background: #fff;
+  box-shadow: -16px 0 44px #17171726;
+}
+
+.admin-form-dialog::backdrop {
+  background: #17171780;
+  backdrop-filter: blur(2px);
+}
+
+.admin-form-dialog .admin-form-card {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 28px;
+  border: 0;
+  border-radius: 0;
+}
+
+.admin-form-dialog .admin-card-heading {
   position: sticky;
-  top: 92px;
+  top: 0;
+  z-index: 1;
+  margin: -4px -4px 21px;
+  padding: 4px;
+  background: #fff;
+}
+
+.admin-create-floating {
+  position: fixed;
+  right: 24px;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: 24px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 900;
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #e53935;
+  box-shadow: 0 8px 25px #17171733;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-create-floating > span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.admin-create-floating:hover {
+  background: #c62828;
+  transform: translateY(-2px);
+}
+
+.admin-create-floating:focus-visible {
+  outline: 3px solid #171717;
+  outline-offset: 3px;
 }
 
 .admin-card-heading {
@@ -446,16 +495,6 @@
   color: #777;
 }
 
-@media (max-width: 900px) {
-  .admin-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-form-card {
-    position: static;
-  }
-}
-
 @media (max-width: 620px) {
   .admin-page {
     padding-top: 35px;
@@ -488,6 +527,16 @@
   .admin-products-card,
   .admin-categories-card {
     padding: 17px;
+  }
+
+  .admin-form-dialog .admin-form-card {
+    padding: 20px 17px;
+  }
+
+  .admin-create-floating {
+    min-height: 48px;
+    padding: 0 16px;
+    font-size: 12px;
   }
 
   .admin-category-form {
